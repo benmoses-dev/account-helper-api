@@ -7,35 +7,113 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class SaleController
 {
   
-  @Autowired
-  private SaleRepository saleRepository;
-  @Autowired
-  private CustomerRepository customerRepository;
+    @Autowired
+    private SaleRepository saleRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
   
-  @PostMapping(path="/sales")
-  public String addNewSale (@RequestParam Integer customerId, 
-                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, 
-                            @RequestParam BigDecimal amount,
-                            @RequestParam Integer invoiceNumber,
-                            @RequestParam boolean isCash)
-  {
+    /**
+     *
+     * @param customerId the unique id of the customer associated with the invoice
+     * @param date the date of the sale if cash, otherwise date of the invoice
+     * @param amount the sale amount
+     * @param invoiceNumber the number of the invoice. Set to 0 if the sale is cash
+     * @param isCash true if the sale is a cash sale, false otherwise
+     * @return String representing the new sale
+     */
+    @PostMapping("/sales")
+    public String addNewSale (@RequestParam("customerId") Integer customerId, 
+                            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, 
+                            @RequestParam("amount") BigDecimal amount,
+                            @RequestParam("invoiceNumber") Integer invoiceNumber,
+                            @RequestParam("isCash") boolean isCash)
+    {
 
-    Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
-    Customer confirmedCustomer = (Customer) customer;
-    Sale s = new Sale(confirmedCustomer.getId(), date, amount, invoiceNumber, isCash);
-    saleRepository.save(s);
-    return "Saved";
-  }
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
+        if (isCash) {
+            invoiceNumber = 0;
+        }
+        Sale sale = new Sale(customer.getId(), date, amount, invoiceNumber, isCash);
+        saleRepository.save(sale);
+        return "Saved: customerId=" + sale.getCustomerId() + ", date=" + sale.getDate()
+                  + ", amount=" + sale.getAmount() + ", invoice number=" + sale.getInvoiceNumber() + ", cash=" + sale.getIsCash();
+    }
 
-  @GetMapping(path="/sales")
-  public Iterable<Sale> getAllSales() {
-    // This returns a JSON or XML with the users
-    return saleRepository.findAll();
-  }
+    /**
+     *
+     * @return
+     */
+    @GetMapping("/sales")
+    public Iterable<Sale> getAllSales() {
+        // This returns a JSON or XML with the users
+        return saleRepository.findAll();
+    }
+  
+    /**
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/sales/{id}")
+    public Sale getSale(@PathVariable("id") Integer id)
+    {
+        return saleRepository.findById(id).orElseThrow(() -> new SaleNotFoundException(id));
+    }
+  
+    /**
+     *
+     * @param id
+     * @param customerId
+     * @param date
+     * @param amount
+     * @param invoiceNumber
+     * @param isCash
+     * @return
+     */
+    @PutMapping("/sales/{id}")
+    public String editSale(@PathVariable("id") Integer id, 
+                            @RequestParam("customerId") Integer customerId, 
+                            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, 
+                            @RequestParam("amount") BigDecimal amount,
+                            @RequestParam("invoiceNumber") Integer invoiceNumber,
+                            @RequestParam("isCash") boolean isCash)
+    {
+        Sale sale = saleRepository.findById(id).orElseThrow(() -> new SaleNotFoundException(id));
+        Customer newCustomer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
+        sale.setCustomer(newCustomer.getId());
+        sale.setDate(date);
+        sale.setAmount(amount);
+        sale.setInvoiceNumber(invoiceNumber);
+        sale.setIsCash(isCash);
+        saleRepository.save(sale);
+        return "sale altered: customerId=" + sale.getCustomerId() + ", date=" + sale.getDate()
+              + ", amount=" + sale.getAmount() + ", invoice number=" + sale.getInvoiceNumber() + ", cash=" + sale.getIsCash();
+    }
+  
+    /**
+     *
+     * @param id
+     * @return
+     */
+    @PostMapping("/sales/{id}")
+    public String deleteSale(@PathVariable("id") Integer id)
+    {
+        Sale sale = saleRepository.findById(id).orElseThrow(() -> new SaleNotFoundException(id));
+        String success = "deleted sale: customerId=" + sale.getCustomerId() + ", date=" + sale.getDate()
+              + ", amount=" + sale.getAmount() + ", invoice number=" + sale.getInvoiceNumber() + ", cash=" + sale.getIsCash();
+        saleRepository.deleteById(id);
+        if (saleRepository.existsById(id)) {
+            return "sale not deleted!";
+        } else {
+            return success;
+        }
+    }
 }

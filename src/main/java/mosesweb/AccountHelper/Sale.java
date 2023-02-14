@@ -37,8 +37,8 @@ public class Sale {
   public Integer getCustomerId() {
     return customerId;
   }
-  public void setCustomer(Customer customer) {
-    this.customerId = customer.getId();
+  public void setCustomer(Integer customerId) {
+    this.customerId = customerId;
   }
 
   public LocalDate getDate() {

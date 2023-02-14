@@ -13,15 +13,15 @@ public class Customer {
 
   private String name;
   private String email;
-  private String address;
+  private String postcode;
 
   public Customer(){}
   
-  public Customer(String name, String email, String address)
+  public Customer(String name, String email, String postcode)
   {
       this.name = name;
       this.email = email;
-      this.address = address;
+      this.postcode = postcode;
   }
   
   public Integer getId() {
@@ -42,10 +42,10 @@ public class Customer {
     this.email = email;
   }
   
-  public String getAddress() {
-      return address;
+  public String getPostcode() {
+      return postcode;
   }
-  public void setAddress(String address) {
-      this.address = address;
+  public void setPostcode(String postcode) {
+      this.postcode = postcode;
   }
 }
