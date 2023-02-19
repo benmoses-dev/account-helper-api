@@ -49,7 +49,7 @@ public class SaleController
 
     /**
      *
-     * @return
+     * @return all Sale objects
      */
     @GetMapping("/sales")
     public Iterable<Sale> getAllSales() {
@@ -59,8 +59,8 @@ public class SaleController
   
     /**
      *
-     * @param id
-     * @return
+     * @param id the unique id of the Sale
+     * @return the Sale with the given id
      */
     @GetMapping("/sales/{id}")
     public Sale getSale(@PathVariable("id") Integer id)
@@ -70,13 +70,13 @@ public class SaleController
   
     /**
      *
-     * @param id
-     * @param customerId
-     * @param date
-     * @param amount
-     * @param invoiceNumber
-     * @param isCash
-     * @return
+     * @param id the unique id of the Sale
+     * @param customerId the new customer id
+     * @param date the new date
+     * @param amount the new amount
+     * @param invoiceNumber the new invoice number
+     * @param isCash true if the Sale is cash, otherwise false
+     * @return a String representation of the edited Sale
      */
     @PutMapping("/sales/{id}")
     public String editSale(@PathVariable("id") Integer id, 
@@ -100,8 +100,8 @@ public class SaleController
   
     /**
      *
-     * @param id
-     * @return
+     * @param id the unique id of the Sale to delete
+     * @return a String representation of the deleted Sale if successful, otherwise 'sale not deleted!'
      */
     @PostMapping("/sales/{id}")
     public String deleteSale(@PathVariable("id") Integer id)

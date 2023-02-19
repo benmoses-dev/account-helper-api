@@ -1,11 +1,12 @@
 package mosesweb.AccountHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -23,13 +24,13 @@ public class CustomerController
     * @return a String confirming that the customer was saved
     */
     @PostMapping("/customers") // Map ONLY POST Requests
-    public String addNewCustomer (@RequestParam String name, 
-                    @RequestParam String email, 
-                    @RequestParam String postcode)
+    public String addNewCustomer (@RequestBody String name,
+                    @RequestBody String email,
+                    @RequestBody String postcode)
     {
     
-        Customer c = new Customer(name, email, postcode);
-        customerRepository.save(c);
+        Customer customer = new Customer(name, email, postcode);
+        customerRepository.save(customer);
         return "Saved";
     }
 
@@ -37,14 +38,18 @@ public class CustomerController
     *
     * @return a collection of all customers
     */
-    @GetMapping("/customers")
+    @GetMapping(value = "/customers", produces = MediaType.APPLICATION_JSON_VALUE)
     public Iterable<Customer> getAllCustomers()
     {
-        // This returns a JSON or XML with the users
         return customerRepository.findAll();
     }
   
-    @GetMapping("/customers/{id}")
+    /**
+     *
+     * @param id the unique customer id
+     * @return the Customer with the given id if found, otherwise 404 error
+     */
+    @GetMapping(value = "/customers/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Customer getCustomer(@PathVariable("id") Integer id)
     {
         return customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
@@ -52,33 +57,40 @@ public class CustomerController
     
     /**
      *
-     * @param name the customer's surname or full name
-     * @param email the customer's email
-     * @param postcode the customer's postcode
+     * @param customer the Customer object with the new details
      * @return String representing the new customer details
      */
-    @PutMapping("/customers/{id}")
-    public String editCustomer(@PathVariable("id") Integer id, @RequestParam(name="name") String name, @RequestParam(name="email") String email, @RequestParam(name="postcode") String postcode)
+    @PutMapping(value = "/customers/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Customer editCustomer(@PathVariable("id") Integer id,
+                                 @RequestBody Customer customer)
     {
-        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        customer.setName(name);
-        customer.setEmail(email);
-        customer.setPostcode(postcode);
-        customerRepository.save(customer);
-        return "customer altered: name=" + customer.getName() + ", email=" + customer.getEmail() + ", postcode=" + customer.getPostcode();
+        // check that the customer with id exists
+        Customer foundCustomer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
+        // set the saved customer details to the details of the provided customer
+        foundCustomer.setName(customer.getName());
+        foundCustomer.setEmail(customer.getEmail());
+        foundCustomer.setPostcode(customer.getPostcode());
+        // save the modified customer details
+        customerRepository.save(foundCustomer);
+        // retrieve the customer to ensure that it has saved correctly
+        Customer confirmedCustomer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
+        return confirmedCustomer;
     }
     
+    /**
+     *
+     * @return a String representing whether the customer was successfully deleted
+     */
     @PostMapping("/customers/{id}")
     public String deleteCustomer(@PathVariable("id") Integer id)
     {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        String success = "deleted customer: id=" + customer.getId() + ", name=" + customer.getName() 
-            + ", email=" + customer.getEmail() + ", postcode=" + customer.getPostcode();
         customerRepository.deleteById(id);
         if (customerRepository.existsById(id)) {
-            return "customer not deleted!";
+            Customer notDeleted = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
+            return "customer" + notDeleted.getName() + "not deleted!";
         } else {
-            return success;
+            return "customer" + customer.getName() + "deleted!";
         }
     }
 }
