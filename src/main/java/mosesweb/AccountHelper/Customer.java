@@ -23,7 +23,34 @@ public class Customer {
         this.email = email;
         this.postcode = postcode;
     }
-  
+    
+    /**
+     *
+     * @param name the new name of the customer
+     */
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+    
+    /**
+     *
+     * @param email the new email of the customer
+     */
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+    
+    /**
+     *
+     * @param postcode the new postcode of the customer
+     */
+    public void setPostcode(String postcode)
+    {
+        this.postcode = postcode;
+    }
+    
     /**
     *
     * @return the id of the Customer. null if not saved in the repository
@@ -58,21 +85,6 @@ public class Customer {
     public String getPostcode()
     {
       return postcode;
-    }
-    
-    private void setName(String name)
-    {
-        this.name = name;
-    }
-    
-    private void setEmail(String email)
-    {
-        this.email = email;
-    }
-    
-    private void setPostcode(String postcode)
-    {
-        this.postcode = postcode;
     }
   
     /**
