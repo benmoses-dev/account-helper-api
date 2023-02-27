@@ -1,21 +1,20 @@
 package mosesweb.AccountHelper;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import mosesweb.AccountHelper.Exceptions.AmountNotValidException;
 import mosesweb.AccountHelper.Exceptions.CustomerNeededException;
 import mosesweb.AccountHelper.Exceptions.CustomerNotFoundException;
+import mosesweb.AccountHelper.Exceptions.DateNotValidException;
 import mosesweb.AccountHelper.Exceptions.InvoiceNumberNeededException;
 import mosesweb.AccountHelper.Exceptions.SaleNotFoundException;
-import mosesweb.AccountHelper.Exceptions.SaleDoesNotMatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
-
-import java.math.BigDecimal;
 
 /**
  *
@@ -79,17 +78,51 @@ public class SaleController
     {
         Sale sale = saleWrapper.getSale();
         if (sale.getId() == null) {
-            Customer customer = saleWrapper.getCustomer();
-            Integer invoiceNumber = saleWrapper.getInvoiceNumber();
+            if (sale.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+                throw new AmountNotValidException(sale.getAmount());
+            }
+            if (sale.getDate().isAfter(LocalDate.now().plusDays(1))) {
+                throw new DateNotValidException(sale.getDate(), LocalDate.now());
+            }
             if (sale.getIsCash()) {
                 BankDebit bd = sale.createBankDebit();
                 sale.setBankDebit(bd);
             } else {
+                Integer customerId = saleWrapper.getCustomerId();
+                Integer invoiceNumber = saleWrapper.getInvoiceNumber();
+                if (invoiceNumber == null || invoiceNumber.compareTo(0) < 0) {
+                    throw new InvoiceNumberNeededException(invoiceNumber);
+                }
+                if (customerId == null || customerId.compareTo(0) < 0) {
+                    throw new CustomerNeededException(customerId);
+                }
+                Iterable<Sale> sales = saleRepository.findAll();
+                for (Sale existingSale : sales) {
+                    existingSale.checkUnique(invoiceNumber);
+                }
+                Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
                 Receivable r = sale.createReceivable(customer, invoiceNumber);
                 sale.setReceivable(r);
             }
             return saleRepository.save(sale);
         }
         return saleRepository.findById(sale.getId()).orElseThrow(() -> new SaleNotFoundException(sale.getId()));
+    }
+    
+    @PostMapping(value = "/sales/{id}/")
+    public String deleteSale(@PathVariable("id") Integer id)
+    {
+        if (!saleRepository.existsById(id)) {
+            throw new SaleNotFoundException(id);
+        }
+        saleRepository.deleteById(id);
+        return "success.";
+    }
+    
+    @PostMapping(value = "/sales/all/")
+    public String deleteAllSales()
+    {
+        saleRepository.deleteAll();
+        return "success: all sales deleted. I hope you're happy...";
     }
 }

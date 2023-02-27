@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
-public class AmountNotValidAdvice
+public class DateNotValidAdvice
 {
     @ResponseBody
-    @ExceptionHandler(AmountNotValidException.class)
+    @ExceptionHandler(DateNotValidException.class)
     @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-    public String amountNotValidHandler(AmountNotValidException e)
+    public String dateNotValidHandler(DateNotValidException e)
     {
         return e.getMessage();
     }

@@ -3,7 +3,7 @@ package mosesweb.AccountHelper;
 public class SaleWrapper {
 
     private Sale sale;
-    private Customer customer;
+    private Integer customerId;
     private Integer invoiceNumber;
 
     public SaleWrapper()
@@ -15,9 +15,9 @@ public class SaleWrapper {
         this.sale = sale;
     }
     
-    public void setCustomer(Customer customer)
+    public void setCustomerId(Integer customerId)
     {
-        this.customer = customer;
+        this.customerId = customerId;
     }
     
     public void setInvoiceNumber(Integer invoiceNumber)
@@ -30,9 +30,9 @@ public class SaleWrapper {
         return sale;
     }
 
-    public Customer getCustomer()
+    public Integer getCustomerId()
     {
-        return customer;
+        return customerId;
     }
     
     public Integer getInvoiceNumber()

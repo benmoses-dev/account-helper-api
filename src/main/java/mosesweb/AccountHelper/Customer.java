@@ -3,12 +3,16 @@ package mosesweb.AccountHelper;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Entity
 @Table(name="customers")
@@ -22,8 +26,11 @@ public class Customer {
     private String email;
     
     @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="address_id", referencedColumnName="id")
+    @JoinColumn(name="address_id")
     private Address address;
+    
+    @OneToMany(mappedBy="customer", fetch=FetchType.LAZY)
+    private Collection<Receivable> receivables = new ArrayList<>();
 
     public Customer()
     {
@@ -95,5 +102,10 @@ public class Customer {
     public Address getAddress()
     {
       return address;
+    }
+    
+    public Collection<Receivable> getReceivables()
+    {
+        return receivables;
     }
 }

@@ -1,5 +1,6 @@
 package mosesweb.AccountHelper;
 
+import java.util.Collection;
 import mosesweb.AccountHelper.Exceptions.CustomerNameNeededException;
 import mosesweb.AccountHelper.Exceptions.CustomerNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,13 @@ public class CustomerController
                     () -> new CustomerNotFoundException(id));
     }
     
+    @GetMapping(value = "/customers/{id}/ledger/", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Collection<Receivable> getLedger(@PathVariable("id") Integer id)
+    {
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
+        return customer.getReceivables();
+    }
+    
     // ***** CONTROLLER *****
     
     /**
@@ -95,6 +103,15 @@ public class CustomerController
             throw new CustomerNotFoundException(id);
         }
         customer.setId(id);
+        return customerRepository.save(customer);
+    }
+    
+    @PutMapping(value = "/customers/{id}/address/", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Customer editAddress(@PathVariable("id") Integer id,
+                                @RequestBody Address address)
+    {
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
+        customer.setAddress(address);
         return customerRepository.save(customer);
     }
     

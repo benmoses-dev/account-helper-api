@@ -1,14 +1,17 @@
 package mosesweb.AccountHelper;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import mosesweb.AccountHelper.Exceptions.InvoiceNumberNotUniqueException;
 
 @Entity
 @Table(name="sales")
@@ -24,7 +27,12 @@ public class Sale
     private BigDecimal amount;
     private boolean isCash;
     
+    @OneToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name="bank_debit_id")
     private BankDebit bankDebit;
+    
+    @OneToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name="receivable_id")
     private Receivable receivable;
 
     public Sale()
@@ -122,12 +130,27 @@ public class Sale
     public BankDebit createBankDebit()
     {
         BankDebit bd = new BankDebit();
+        bd.setAmount(getAmount());
+        bd.setDate(getDate());
         return bd;
     }
     
     public Receivable createReceivable(Customer customer, Integer invoiceNumber)
     {
         Receivable r = new Receivable();
+        r.setAmount(getAmount());
+        r.setDate(getDate());
+        r.setInvoiceNumber(invoiceNumber);
+        r.setCustomer(customer);
         return r;
+    }
+    
+    public void checkUnique(Integer invoiceNumber)
+    {
+        if (!getIsCash() && receivable != null) {
+            if (receivable.getInvoiceNumber().equals(invoiceNumber)) {
+                throw new InvoiceNumberNotUniqueException(invoiceNumber, id);
+            }
+        }
     }
 }

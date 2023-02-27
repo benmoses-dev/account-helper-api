@@ -1,5 +1,6 @@
 package mosesweb.AccountHelper;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,6 +22,7 @@ public class Address {
     private String postcode;
     
     @OneToOne(mappedBy="address")
+    @JsonIgnore
     private Customer customer;
 
     public Address()
@@ -88,5 +90,10 @@ public class Address {
     public String getPostcode()
     {
       return postcode;
+    }
+    
+    public Customer getCustomer()
+    {
+        return customer;
     }
 }
