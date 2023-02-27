@@ -1,48 +1,39 @@
 package mosesweb.AccountHelper;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
+@Table(name="sales")
 public class Sale
 {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="id")
     private Integer id;
-
-    private Integer customerId;
+    
     private LocalDate date;
     private BigDecimal amount;
     private boolean isCash;
-    private Integer invoiceNumber;
+    
+    private BankDebit bankDebit;
+    private Receivable receivable;
 
     public Sale()
     {
     }
-
-//    public Sale(Integer customerId, LocalDate date, BigDecimal amount,
-//                Integer invoiceNumber, boolean isCash)
-//    {
-//        this.customerId = customerId;
-//        this.date = date;
-//        this.amount = amount;
-//        this.isCash = isCash;
-//        this.invoiceNumber = invoiceNumber;
-//    }
-
-     /**
-     *
-     * @param customerId the customer ID of the new customer linked to the sale.
-     */
-    public void setCustomerId(Integer customerId)
+    
+    public void setId(Integer id)
     {
-        this.customerId = customerId;
+        this.id = id;
     }
     
     /**
@@ -71,14 +62,15 @@ public class Sale
     {
         this.isCash = isCash;
     }
-
-    /**
-     *
-     * @param invoiceNumber the new invoice number linked to a credit sale.
-     */
-    public void setInvoiceNumber(Integer invoiceNumber)
+    
+    public void setBankDebit(BankDebit bankDebit)
     {
-        this.invoiceNumber = invoiceNumber;
+        this.bankDebit = bankDebit;
+    }
+    
+    public void setReceivable(Receivable receivable)
+    {
+        this.receivable = receivable;
     }
 
     /**
@@ -88,15 +80,6 @@ public class Sale
     public Integer getId()
     {
         return id;
-    }
-
-    /**
-     *
-     * @return the ID of the customer linked to the sale.
-     */
-    public Integer getCustomerId()
-    {
-        return customerId;
     }
 
     /**
@@ -119,15 +102,6 @@ public class Sale
 
     /**
      *
-     * @return the invoice number linked to a credit sale. null if the sale is cash.
-     */
-    public Integer getInvoiceNumber()
-    {
-        return invoiceNumber;
-    }
-
-    /**
-     *
      * @return true if the sale if a cash sale, otherwise false.
      */
     public boolean getIsCash()
@@ -135,17 +109,25 @@ public class Sale
         return isCash;
     }
     
-    /**
-     *
-     * @param sale a Sale object with the desired customer ID, date, amount, cash status, and invoice number. 
-     * This Sale will update its state to the same values as the provided Sale.
-     */
-    public void updateDetails (Sale sale)
+    public BankDebit getBankDebit()
     {
-        this.customerId = sale.getCustomerId();
-        this.date = sale.getDate();
-        this.amount = sale.getAmount();
-        this.isCash = sale.getIsCash();
-        this.invoiceNumber = sale.getInvoiceNumber();
+        return bankDebit;
+    }
+    
+    public Receivable getReceivable()
+    {
+        return receivable;
+    }
+    
+    public BankDebit createBankDebit()
+    {
+        BankDebit bd = new BankDebit();
+        return bd;
+    }
+    
+    public Receivable createReceivable(Customer customer, Integer invoiceNumber)
+    {
+        Receivable r = new Receivable();
+        return r;
     }
 }

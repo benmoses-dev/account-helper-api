@@ -1,5 +1,7 @@
 package mosesweb.AccountHelper;
 
+import mosesweb.AccountHelper.Exceptions.CustomerNameNeededException;
+import mosesweb.AccountHelper.Exceptions.CustomerNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Customer. Can add a Customer to the system. Can update a Customer that
  * belongs to the system. Can delete a Customer that belongs to the system.
  *
- * @author user
+ * @author Ben Moses
  */
 @RestController
 public class CustomerController
@@ -69,13 +71,16 @@ public class CustomerController
         if (customer.getName() == null) {
             throw new CustomerNameNeededException();
         }
-        return customerRepository.save(customer);
+        if (customer.getId() == null) {
+            return customerRepository.save(customer);
+        }
+        return customerRepository.findById(customer.getId()).orElseThrow(() -> new CustomerNotFoundException(customer.getId()));
     }
 
     /**
      *
      * Edit an existing Customer. Throws a RuntimeException if the Customer does
-     * not exist in the system.
+     * not exist in the system. The Customer provided must have the correct ID.
      *
      * @param id the ID of the Customer to edit
      * @param customer the Customer object with the new details
@@ -85,13 +90,12 @@ public class CustomerController
     public Customer editCustomer(@PathVariable("id") Integer id,
                                  @RequestBody Customer customer)
     {
-        // check that the customer with id exists
-        Customer foundCustomer = customerRepository.findById(id).orElseThrow(
-                    () -> new CustomerNotFoundException(id));
-        // set the saved customer details to the details of the provided customer
-        foundCustomer.updateDetails(customer);
-        // save the modified customer details
-        return customerRepository.save(foundCustomer);
+        // check that the customer with id exists and is the same as the provided customer
+        if (!customerRepository.existsById(id)) {
+            throw new CustomerNotFoundException(id);
+        }
+        customer.setId(id);
+        return customerRepository.save(customer);
     }
     
     /**
@@ -106,17 +110,9 @@ public class CustomerController
     @PostMapping("/customers/{id}/")
     public String deleteCustomer(@PathVariable("id") Integer id)
     {
-        Customer customer = customerRepository.findById(id).orElseThrow(
-                    () -> new CustomerNotFoundException(id));
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
+        String result = "customer " + customer.getName() + " with ID " + customer.getId() + " deleted.";
         customerRepository.deleteById(id);
-
-        if (customerRepository.existsById(id)) {
-            Customer notDeleted = customerRepository.findById(id).orElseThrow(
-                        () -> new CustomerNotFoundException(id));
-            if (notDeleted.equals(customer)) {
-                return "customer " + notDeleted.getName() + " not deleted!";
-            }
-        }
-        return "customer " + customer.getName() + " deleted!";
+        return result;
     }
 }

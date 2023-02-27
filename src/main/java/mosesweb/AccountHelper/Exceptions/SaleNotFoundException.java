@@ -1,4 +1,4 @@
-package mosesweb.AccountHelper;
+package mosesweb.AccountHelper.Exceptions;
 
 public class SaleNotFoundException extends RuntimeException {
     

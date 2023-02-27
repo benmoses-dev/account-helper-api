@@ -1,5 +1,6 @@
-package mosesweb.AccountHelper;
+package mosesweb.AccountHelper.Exceptions;
 
+import mosesweb.AccountHelper.Exceptions.InvoiceNumberNeededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -7,12 +8,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
-public class AmountNotValidAdvice
+public class InvoiceNumberNeededAdvice
 {
     @ResponseBody
-    @ExceptionHandler(AmountNotValidException.class)
+    @ExceptionHandler(InvoiceNumberNeededException.class)
     @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-    public String AmountNotValidHandler(AmountNotValidException e)
+    public String invoiceNumberNeededHandler(InvoiceNumberNeededException e)
     {
         return e.getMessage();
     }

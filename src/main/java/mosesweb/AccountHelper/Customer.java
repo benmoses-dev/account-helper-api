@@ -1,27 +1,37 @@
 package mosesweb.AccountHelper;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
-@Entity // This tells Hibernate to make a table out of this class
+@Entity
+@Table(name="customers")
 public class Customer {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name="id")
     private Integer id;
 
     private String name;
     private String email;
-    private String postcode;
+    
+    @OneToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name="address_id", referencedColumnName="id")
+    private Address address;
 
-    public Customer(){}
-  
-    public Customer(String name, String email, String postcode)
+    public Customer()
     {
-        this.name = name;
-        this.email = email;
-        this.postcode = postcode;
+    }
+    
+    public void setId(Integer id)
+    {
+        this.id = id;
     }
     
     /**
@@ -44,11 +54,11 @@ public class Customer {
     
     /**
      *
-     * @param postcode the new postcode of the customer
+     * @param address the new address of the customer
      */
-    public void setPostcode(String postcode)
+    public void setAddress(Address address)
     {
-        this.postcode = postcode;
+        this.address = address;
     }
     
     /**
@@ -80,22 +90,10 @@ public class Customer {
     
     /**
      *
-     * @return the postcode of the Customer
+     * @return the address of the Customer
      */
-    public String getPostcode()
+    public Address getAddress()
     {
-      return postcode;
-    }
-  
-    /**
-     *
-     * @param customer a Customer object with the desired name, email, and postcode. 
-     * This Customer will update its name, email, and postcode to the same values as the provided customer
-     */
-    public void updateDetails(Customer customer)
-    {
-        setName(customer.getName());
-        setEmail(customer.getEmail());
-        setPostcode(customer.getPostcode());
+      return address;
     }
 }

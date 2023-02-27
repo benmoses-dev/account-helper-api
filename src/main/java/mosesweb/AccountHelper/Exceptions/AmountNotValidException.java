@@ -1,4 +1,4 @@
-package mosesweb.AccountHelper;
+package mosesweb.AccountHelper.Exceptions;
 
 import java.math.BigDecimal;
 
