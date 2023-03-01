@@ -4,6 +4,7 @@ import mosesweb.accounthelper.models.Receivable;
 import mosesweb.accounthelper.models.Customer;
 import mosesweb.accounthelper.models.Address;
 import java.util.Collection;
+import mosesweb.accounthelper.exceptions.CustomerAlreadyExistsException;
 import mosesweb.accounthelper.exceptions.CustomerNameNeededException;
 import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +75,7 @@ public class CustomerController
     }
     
     // ***** CONTROLLER *****
-    
-    /**
+        /**
      *
      * Add a new Customer to the system. Throws a RuntimeException if the
      * Customer name is null.
@@ -87,12 +87,18 @@ public class CustomerController
     public Customer addNewCustomer(@RequestBody Customer customer)
     {
         if (customer.getName() == null) {
-            throw new CustomerNameNeededException();
+            customer.setName("");
         }
-        if (customer.getId() == null) {
-            return customerRepository.save(customer);
+        if (customer.getEmail() == null) {
+            customer.setEmail("");
         }
-        return customerRepository.findById(customer.getId()).orElseThrow(() -> new CustomerNotFoundException(customer.getId()));
+        if (customer.getAddress() == null) {
+            customer.setAddress(new Address(0, "", ""));
+        }
+        if (customer.getId() != null) {
+            throw new CustomerAlreadyExistsException(customer.getId());
+        }
+        return customerRepository.save(customer);
     }
 
     /**
@@ -154,7 +160,10 @@ public class CustomerController
     {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
         String result = "customer " + customer.getName() + " with ID " + customer.getId() + " deleted.";
-        customerRepository.deleteById(id);
-        return result;
+        if (customer.getReceivables().isEmpty()) {
+            customerRepository.deleteById(id);
+            return result;
+        }
+        return "This customer has receivables and must be kept for system records. Please consider removing personal details instead of deleting.";
     }
 }

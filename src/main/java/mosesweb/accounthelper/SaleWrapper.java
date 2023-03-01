@@ -1,10 +1,13 @@
 package mosesweb.accounthelper;
 
-import mosesweb.accounthelper.models.Sale;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class SaleWrapper {
 
-    private Sale sale;
+    private BigDecimal amount;
+    private LocalDate date;
+    private boolean isCash;
     private Integer customerId;
     private Integer invoiceNumber;
 
@@ -12,24 +15,19 @@ public class SaleWrapper {
     {
     }
     
-    public void setSale(Sale sale)
+    public BigDecimal getAmount()
     {
-        this.sale = sale;
+        return amount;
     }
     
-    public void setCustomerId(Integer customerId)
+    public LocalDate getDate()
     {
-        this.customerId = customerId;
+        return date;
     }
     
-    public void setInvoiceNumber(Integer invoiceNumber)
+    public boolean isCash()
     {
-        this.invoiceNumber = invoiceNumber;
-    }
-    
-    public Sale getSale()
-    {
-        return sale;
+        return isCash;
     }
 
     public Integer getCustomerId()

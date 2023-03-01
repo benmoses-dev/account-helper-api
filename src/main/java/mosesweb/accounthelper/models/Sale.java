@@ -11,6 +11,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import mosesweb.accounthelper.exceptions.CustomerNeededException;
 
 /**
  *
@@ -49,24 +50,34 @@ public class Sale
     
     public Sale(BigDecimal amount, LocalDate date)
     {
-        this.amount = amount;
-        this.date = date;
+        this(amount, date, true);
     }
     
-    public Sale(BigDecimal amount, LocalDate date, BankDebit bankDebit)
+    public Sale(BigDecimal amount, LocalDate date, boolean isCash)
     {
         this.date = date;
         this.amount = amount;
-        this.isCash = true;
-        this.bankDebit = bankDebit;
+        this.isCash = isCash;
+        if (isCash) {
+            this.bankDebit = new BankDebit(amount, date);
+            this.receivable = null;
+        } else {
+            throw new CustomerNeededException();
+        }
     }
             
-    public Sale(BigDecimal amount, LocalDate date, Receivable receivable)
+    public Sale(BigDecimal amount, LocalDate date, boolean isCash, Integer invoiceNumber, Customer customer)
     {
         this.date = date;
         this.amount = amount;
-        this.isCash = false;
-        this.receivable = receivable;
+        this.isCash = isCash;
+        if (isCash) {
+            this.bankDebit = new BankDebit(amount, date);
+            this.receivable = null;
+        } else {
+            this.receivable = new Receivable(amount, date, invoiceNumber, customer);
+            this.bankDebit = null;
+        }
     }
 
     /**
@@ -100,7 +111,7 @@ public class Sale
      *
      * @return true if the sale if a cash sale, otherwise false.
      */
-    public boolean getIsCash()
+    public boolean isCash()
     {
         return isCash;
     }
@@ -125,41 +136,13 @@ public class Sale
     
     /**
      *
-     * Create and return a new cash Sale object with an attached BankDebit.
-     *
-     * @return the created cash Sale object.
-     */
-    public Sale createCashSale()
-    {
-        BankDebit bd = new BankDebit(getAmount(), getDate());
-        return new Sale(getAmount(), getDate(), bd);
-    }
-    
-    /**
-     *
-     * Create and return a credit Sale object with an attached Receivable. The
-     * customer must already exist, and the invoice number must be unique. Both
-     * must be non-negative.
-     *
-     * @param customer a valid customer.
-     * @param invoiceNumber a valid, unique invoice number.
-     * @return the created credit Sale object.
-     */
-    public Sale createCreditSale(Integer invoiceNumber, Customer customer)
-    {
-        Receivable r = new Receivable(getAmount(), getDate(), invoiceNumber, customer);
-        return new Sale(getAmount(), getDate(), r);
-    }
-    
-    /**
-     *
      * @param invoiceNumber the target invoice number. This will be checked
      * against this sale's invoice number if it is a credit sale, and a
      * RuntimeException will be thrown if the invoice numbers match.
      */
     public boolean invoiceNumberMatches(Integer invoiceNumber)
     {
-        if (!getIsCash() && receivable != null) {
+        if (!isCash() && receivable != null) {
             // This is a credit sale with a valid receivable attached
             if (receivable.getInvoiceNumber().equals(invoiceNumber)) {
                 // The target invoice number is the same as this invoice number...
