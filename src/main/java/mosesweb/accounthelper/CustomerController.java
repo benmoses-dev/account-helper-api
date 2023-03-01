@@ -60,10 +60,17 @@ public class CustomerController
     }
     
     @GetMapping(value = "/customers/{id}/ledger/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Collection<Receivable> getLedger(@PathVariable("id") Integer id)
+    public Collection<Receivable> getCustomerLedger(@PathVariable("id") Integer id)
     {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
         return customer.getReceivables();
+    }
+    
+    @GetMapping(value = "/customers/{id}/address/", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Address getCustomerAddress(@PathVariable("id") Integer id)
+    {
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
+        return customer.getAddress();
     }
     
     // ***** CONTROLLER *****
@@ -103,8 +110,13 @@ public class CustomerController
     {
         // check that the customer with id exists and is the same as the provided customer
         Customer found = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        found.setEmail(customer.getEmail());
-        if (!(customer.getAddress() == null)) {
+        if (customer.getEmail() != null) {
+            found.setEmail(customer.getEmail());
+        }
+        if (customer.getName() != null) {
+            found.setName(customer.getName());
+        }
+        if (customer.getAddress() != null) {
             found.setAddress(customer.getAddress());
         }
         return customerRepository.save(found);
@@ -114,9 +126,18 @@ public class CustomerController
     public Customer editAddress(@PathVariable("id") Integer id,
                                 @RequestBody Address address)
     {
-        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        customer.setAddress(address);
-        return customerRepository.save(customer);
+        Customer found = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
+        Address oldAddress = found.getAddress();
+        if (address.getHouseNumber() != 0) {
+            oldAddress.setHouseNumber(address.getHouseNumber());
+        }
+        if (address.getPostcode() != null) {
+            oldAddress.setPostcode(address.getPostcode());
+        }
+        if (address.getRoadName() != null) {
+            oldAddress.setRoadName(address.getRoadName());
+        }
+        return customerRepository.save(found);
     }
     
     /**
