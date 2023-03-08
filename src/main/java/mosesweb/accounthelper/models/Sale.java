@@ -48,13 +48,18 @@ public class Sale
     {
     }
     
-    public Sale(BigDecimal amount, LocalDate date)
-    {
-        this(amount, date, true);
-    }
-    
+    /**
+     *
+     * @param amount the amount of the sale as a non-negative decimal.
+     * @param date the date of the sale.
+     * @param isCash if false, a run-time exception is thrown; an invoice number and customer must be provided.
+     */
     public Sale(BigDecimal amount, LocalDate date, boolean isCash)
     {
+        // defensive to prevent undefined state
+        if (amount == null || (amount.compareTo(BigDecimal.ZERO) < 0) || date == null) {
+            throw new RuntimeException();
+        }
         this.date = date;
         this.amount = amount;
         this.isCash = isCash;
@@ -66,8 +71,20 @@ public class Sale
         }
     }
             
+    /**
+     *
+     * @param amount the amount of the sale as a non-negative decimal.
+     * @param date the date of the sale.
+     * @param isCash whether the sale is cash or credit.
+     * @param invoiceNumber if isCash is false, this must be a valid invoice number. Ignored if cash.
+     * @param customer if isCash is false, this must be a valid customer. Ignored if cash.
+     */
     public Sale(BigDecimal amount, LocalDate date, boolean isCash, Integer invoiceNumber, Customer customer)
     {
+        // defensive to prevent undefined state
+        if (amount == null || (amount.compareTo(BigDecimal.ZERO) < 0) || date == null) {
+            throw new RuntimeException();
+        }
         this.date = date;
         this.amount = amount;
         this.isCash = isCash;
@@ -75,6 +92,10 @@ public class Sale
             this.bankDebit = new BankDebit(amount, date);
             this.receivable = null;
         } else {
+            // defensive to prevent undefined state
+            if (invoiceNumber == null || customer == null) {
+                throw new RuntimeException();
+            }
             this.receivable = new Receivable(amount, date, invoiceNumber, customer);
             this.bankDebit = null;
         }

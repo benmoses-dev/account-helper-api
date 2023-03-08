@@ -2,18 +2,9 @@ package mosesweb.accounthelper.controllers;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import mosesweb.accounthelper.repositories.CustomerRepository;
-import mosesweb.accounthelper.repositories.SaleRepository;
 import mosesweb.accounthelper.models.SaleWrapper;
-import mosesweb.accounthelper.exceptions.AmountNotValidException;
-import mosesweb.accounthelper.exceptions.CustomerNeededException;
-import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
-import mosesweb.accounthelper.exceptions.DateNotValidException;
-import mosesweb.accounthelper.exceptions.InvoiceNumberNeededException;
-import mosesweb.accounthelper.exceptions.InvoiceNumberNotUniqueException;
 import mosesweb.accounthelper.models.Sale;
-import mosesweb.accounthelper.exceptions.SaleNotFoundException;
-import mosesweb.accounthelper.models.Customer;
+import mosesweb.accounthelper.services.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,10 +27,7 @@ public class SaleController
 {
 
     @Autowired
-    private SaleRepository saleRepository;
-    
-    @Autowired
-    private CustomerRepository customerRepository;
+    private SaleService saleService;
 
     // ***** PRESENTER *****
 
@@ -52,7 +40,7 @@ public class SaleController
     @GetMapping(value = "/sales/", produces = MediaType.APPLICATION_JSON_VALUE)
     public Iterable<Sale> getAllSales()
     {
-        return saleRepository.findAll();
+        return saleService.findAll();
     }
 
     /**
@@ -66,8 +54,7 @@ public class SaleController
     @GetMapping(value = "/sales/{id}/", produces = MediaType.APPLICATION_JSON_VALUE)
     public Sale getSale(@PathVariable("id") Integer id)
     {
-        return saleRepository.findById(id).orElseThrow(
-                    () -> new SaleNotFoundException(id));
+        return saleService.findById(id);
     }
 
     // ***** CONTROLLER *****
@@ -80,8 +67,8 @@ public class SaleController
      * number will need to be provided alongside the sale; both can be omitted
      * if the sale is cash.
      *
-     * @param saleWrapper the amount, date, invoice number, and customer ID to
-     * add. Add isCash=true to create a cash sale.
+     * @param saleWrapper the amount, date, invoiceNumber, and customerId to
+     * add. Set isCash to true to create a cash sale.
      * @return the Sale that has been added.
      */
     @PostMapping(value = "/sales/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -89,36 +76,11 @@ public class SaleController
     {
         BigDecimal amount = saleWrapper.getAmount();
         LocalDate date = saleWrapper.getDate();
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
-            // The amount must be non-negative
-            throw new AmountNotValidException(amount);
-        }
-        if (date == null || date.isAfter(LocalDate.now().plusDays(1))) {
-            // The date cannot be more than a day in the future
-            throw new DateNotValidException(date, LocalDate.now());
-        }
-        if (saleWrapper.isCash()) {
-            Sale sale = new Sale(amount, date, true);
-            return saleRepository.save(sale);
-        }
+        boolean isCash = saleWrapper.isCash();
+        System.out.println(isCash);
         Integer invoiceNumber = saleWrapper.getInvoiceNumber();
         Integer customerId = saleWrapper.getCustomerId();
-        // A valid customer and invoice number is needed - this is a credit sale
-        if (invoiceNumber == null || invoiceNumber.compareTo(0) < 0) {
-            throw new InvoiceNumberNeededException(invoiceNumber);
-        }
-        if (customerId == null || customerId.compareTo(0) < 0) {
-            throw new CustomerNeededException(customerId);
-        }
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
-        Iterable<Sale> sales = saleRepository.findAll();
-        for (Sale existingSale : sales) {
-            if (existingSale.invoiceNumberMatches(invoiceNumber)) {
-                throw new InvoiceNumberNotUniqueException(invoiceNumber, existingSale.getId());
-            }
-        }
-        Sale sale = new Sale(amount, date, false, invoiceNumber, customer);
-        return saleRepository.save(sale);
+        return saleService.addNewSale(amount, date, isCash, invoiceNumber, customerId);
     }
     
     /**
@@ -131,11 +93,7 @@ public class SaleController
     @PostMapping(value = "/sales/{id}/")
     public String deleteSale(@PathVariable("id") Integer id)
     {
-        if (!saleRepository.existsById(id)) {
-            throw new SaleNotFoundException(id);
-        }
-        saleRepository.deleteById(id);
-        return "success.";
+        return saleService.deleteSale(id);
     }
     
     /**
@@ -147,7 +105,6 @@ public class SaleController
     @PostMapping(value = "/sales/all/")
     public String deleteAllSales()
     {
-        saleRepository.deleteAll();
-        return "success: all sales deleted. I hope you're happy...";
+        return saleService.deleteAll();
     }
 }

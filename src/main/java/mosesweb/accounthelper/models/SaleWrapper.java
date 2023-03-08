@@ -7,7 +7,7 @@ public class SaleWrapper {
 
     private BigDecimal amount;
     private LocalDate date;
-    private boolean isCash;
+    private boolean cash;
     private Integer customerId;
     private Integer invoiceNumber;
 
@@ -27,7 +27,7 @@ public class SaleWrapper {
     
     public boolean isCash()
     {
-        return isCash;
+        return cash;
     }
 
     public Integer getCustomerId()
