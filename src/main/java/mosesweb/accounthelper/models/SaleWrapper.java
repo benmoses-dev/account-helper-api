@@ -1,4 +1,4 @@
-package mosesweb.accounthelper;
+package mosesweb.accounthelper.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

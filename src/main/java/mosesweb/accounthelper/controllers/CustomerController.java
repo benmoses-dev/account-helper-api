@@ -1,11 +1,11 @@
-package mosesweb.accounthelper;
+package mosesweb.accounthelper.controllers;
 
 import mosesweb.accounthelper.models.Receivable;
 import mosesweb.accounthelper.models.Customer;
 import mosesweb.accounthelper.models.Address;
 import java.util.Collection;
+import mosesweb.accounthelper.repositories.CustomerRepository;
 import mosesweb.accounthelper.exceptions.CustomerAlreadyExistsException;
-import mosesweb.accounthelper.exceptions.CustomerNameNeededException;
 import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

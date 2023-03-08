@@ -1,4 +1,4 @@
-package mosesweb.accounthelper;
+package mosesweb.accounthelper.repositories;
 
 import mosesweb.accounthelper.models.Sale;
 import org.springframework.data.repository.CrudRepository;

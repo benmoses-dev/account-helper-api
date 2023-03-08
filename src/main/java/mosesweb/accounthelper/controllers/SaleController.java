@@ -1,7 +1,10 @@
-package mosesweb.accounthelper;
+package mosesweb.accounthelper.controllers;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import mosesweb.accounthelper.repositories.CustomerRepository;
+import mosesweb.accounthelper.repositories.SaleRepository;
+import mosesweb.accounthelper.models.SaleWrapper;
 import mosesweb.accounthelper.exceptions.AmountNotValidException;
 import mosesweb.accounthelper.exceptions.CustomerNeededException;
 import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
