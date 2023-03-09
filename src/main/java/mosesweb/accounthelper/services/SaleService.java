@@ -31,12 +31,12 @@ public class SaleService
     private CustomerRepository customerRepository;
     
     
-    public Iterable<Sale> findAll()
+    public Iterable<Sale> getAllSales()
     {
         return saleRepository.findAll();
     }
     
-    public Sale findById(Integer id)
+    public Sale getSale(Integer id)
     {
         return saleRepository.findById(id).orElseThrow(
                 () -> new SaleNotFoundException(id));
@@ -85,7 +85,7 @@ public class SaleService
         return "success.";
     }
     
-    public String deleteAll()
+    public String deleteAllSales()
     {
         saleRepository.deleteAll();
         return "success: all sales deleted. I hope you're happy...";

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 /**
  *
@@ -40,7 +41,7 @@ public class SaleController
     @GetMapping(value = "/sales/", produces = MediaType.APPLICATION_JSON_VALUE)
     public Iterable<Sale> getAllSales()
     {
-        return saleService.findAll();
+        return saleService.getAllSales();
     }
 
     /**
@@ -54,7 +55,7 @@ public class SaleController
     @GetMapping(value = "/sales/{id}/", produces = MediaType.APPLICATION_JSON_VALUE)
     public Sale getSale(@PathVariable("id") Integer id)
     {
-        return saleService.findById(id);
+        return saleService.getSale(id);
     }
 
     // ***** CONTROLLER *****
@@ -90,7 +91,7 @@ public class SaleController
      * @param id the id of the sale to delete.
      * @return success if the operation was successful.
      */
-    @PostMapping(value = "/sales/{id}/")
+    @DeleteMapping(value = "/sales/{id}/")
     public String deleteSale(@PathVariable("id") Integer id)
     {
         return saleService.deleteSale(id);
@@ -102,9 +103,9 @@ public class SaleController
      * 
      * @return success if successful.
      */
-    @PostMapping(value = "/sales/all/")
+    @DeleteMapping(value = "/sales/all/")
     public String deleteAllSales()
     {
-        return saleService.deleteAll();
+        return saleService.deleteAllSales();
     }
 }

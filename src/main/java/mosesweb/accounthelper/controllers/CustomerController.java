@@ -4,11 +4,12 @@ import mosesweb.accounthelper.models.Receivable;
 import mosesweb.accounthelper.models.Customer;
 import mosesweb.accounthelper.models.Address;
 import java.util.Collection;
-import mosesweb.accounthelper.repositories.CustomerRepository;
 import mosesweb.accounthelper.exceptions.CustomerAlreadyExistsException;
 import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
+import mosesweb.accounthelper.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +31,7 @@ public class CustomerController
 {
     
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerService customerService;
 
     // ***** PRESENTER *****
     
@@ -43,7 +44,7 @@ public class CustomerController
     @GetMapping(value = "/customers/", produces = MediaType.APPLICATION_JSON_VALUE)
     public Iterable<Customer> getAllCustomers()
     {
-        return customerRepository.findAll();
+        return customerService.getAllCustomers();
     }
 
     /**
@@ -56,22 +57,19 @@ public class CustomerController
     @GetMapping(value = "/customers/{id}/", produces = MediaType.APPLICATION_JSON_VALUE)
     public Customer getCustomer(@PathVariable("id") Integer id)
     {
-        return customerRepository.findById(id).orElseThrow(
-                    () -> new CustomerNotFoundException(id));
+        return customerService.getCustomer(id);
     }
     
     @GetMapping(value = "/customers/{id}/ledger/", produces = MediaType.APPLICATION_JSON_VALUE)
     public Collection<Receivable> getCustomerLedger(@PathVariable("id") Integer id)
     {
-        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        return customer.getReceivables();
+        return customerService.getCustomerLedger(id);
     }
     
     @GetMapping(value = "/customers/{id}/address/", produces = MediaType.APPLICATION_JSON_VALUE)
     public Address getCustomerAddress(@PathVariable("id") Integer id)
     {
-        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        return customer.getAddress();
+        return customerService.getCustomerAddress(id);
     }
     
     // ***** CONTROLLER *****
@@ -86,19 +84,7 @@ public class CustomerController
     @PostMapping(value = "/customers/", produces = MediaType.APPLICATION_JSON_VALUE)
     public Customer addNewCustomer(@RequestBody Customer customer)
     {
-        if (customer.getName() == null) {
-            customer.setName("");
-        }
-        if (customer.getEmail() == null) {
-            customer.setEmail("");
-        }
-        if (customer.getAddress() == null) {
-            customer.setAddress(new Address(0, "", ""));
-        }
-        if (customer.getId() != null) {
-            throw new CustomerAlreadyExistsException(customer.getId());
-        }
-        return customerRepository.save(customer);
+        return customerService.addNewCustomer(customer);
     }
 
     /**
@@ -114,36 +100,14 @@ public class CustomerController
     public Customer editCustomer(@PathVariable("id") Integer id,
                                  @RequestBody Customer customer)
     {
-        // check that the customer with id exists and is the same as the provided customer
-        Customer found = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        if (customer.getEmail() != null) {
-            found.setEmail(customer.getEmail());
-        }
-        if (customer.getName() != null) {
-            found.setName(customer.getName());
-        }
-        if (customer.getAddress() != null) {
-            found.setAddress(customer.getAddress());
-        }
-        return customerRepository.save(found);
+        return customerService.editCustomer(id, customer);
     }
     
     @PutMapping(value = "/customers/{id}/address/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Customer editAddress(@PathVariable("id") Integer id,
-                                @RequestBody Address address)
+    public Customer editCustomerAddress(@PathVariable("id") Integer customerId,
+                                        @RequestBody Address newAddress)
     {
-        Customer found = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        Address oldAddress = found.getAddress();
-        if (address.getHouseNumber() != 0) {
-            oldAddress.setHouseNumber(address.getHouseNumber());
-        }
-        if (address.getPostcode() != null) {
-            oldAddress.setPostcode(address.getPostcode());
-        }
-        if (address.getRoadName() != null) {
-            oldAddress.setRoadName(address.getRoadName());
-        }
-        return customerRepository.save(found);
+        return customerService.editCustomerAddress(customerId, newAddress);
     }
     
     /**
@@ -155,15 +119,9 @@ public class CustomerController
      * @return a String representing whether the customer was successfully
      * deleted
      */
-    @PostMapping("/customers/{id}/")
+    @DeleteMapping("/customers/{id}/")
     public String deleteCustomer(@PathVariable("id") Integer id)
     {
-        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        String result = "customer " + customer.getName() + " with ID " + customer.getId() + " deleted.";
-        if (customer.getReceivables().isEmpty()) {
-            customerRepository.deleteById(id);
-            return result;
-        }
-        return "This customer has receivables and must be kept for system records. Please consider removing personal details instead of deleting.";
+        return customerService.deleteCustomer(id);
     }
 }
