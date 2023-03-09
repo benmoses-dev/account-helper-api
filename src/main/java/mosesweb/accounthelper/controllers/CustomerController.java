@@ -4,8 +4,6 @@ import mosesweb.accounthelper.models.Receivable;
 import mosesweb.accounthelper.models.Customer;
 import mosesweb.accounthelper.models.Address;
 import java.util.Collection;
-import mosesweb.accounthelper.exceptions.CustomerAlreadyExistsException;
-import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
 import mosesweb.accounthelper.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
