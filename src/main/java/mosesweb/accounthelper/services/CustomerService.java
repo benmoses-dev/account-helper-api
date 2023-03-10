@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.text.SimpleDateFormat;
-import mosesweb.accounthelper.exceptions.CustomerAlreadyExistsException;
 import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
 import mosesweb.accounthelper.models.Address;
 import mosesweb.accounthelper.models.Customer;
@@ -83,20 +82,48 @@ public class CustomerService
      * @return
      * @throws JsonProcessingException
      */
-    public String addNewCustomer(Customer customer) throws JsonProcessingException
+    public String addNewCustomer(String name, String email, Integer houseNumber,
+                                 String roadName, String postcode) throws JsonProcessingException
     {
-        if (customer.getName() == null) {
+        Customer customer = new Customer();
+
+        if (name == null) {
             customer.setName("");
         }
-        if (customer.getEmail() == null) {
+        else {
+            customer.setName(name);
+        }
+
+        if (email == null) {
             customer.setEmail("");
         }
-        if (customer.getAddress() == null) {
-            customer.setAddress(new Address(0, "", ""));
+        else {
+            customer.setEmail(email);
         }
-        if (customer.getId() != null) {
-            throw new CustomerAlreadyExistsException(customer.getId());
+
+        Address address = new Address();
+
+        if (houseNumber == null) {
+            address.setHouseNumber(0);
         }
+        else {
+            address.setHouseNumber(houseNumber);
+        }
+
+        if (roadName == null) {
+            address.setRoadName("");
+        }
+        else {
+            address.setRoadName(roadName);
+        }
+
+        if (postcode == null) {
+            address.setPostcode("");
+        }
+        else {
+            address.setPostcode(postcode);
+        }
+
         return mapper.writeValueAsString(customerRepository.save(customer));
     }
 
@@ -107,43 +134,36 @@ public class CustomerService
      * @return
      * @throws JsonProcessingException
      */
-    public String editCustomer(Integer id, Customer customer) throws JsonProcessingException
+    public String editCustomer(Integer id, String name, String email,
+                               Integer houseNumber, String roadName,
+                               String postcode) throws JsonProcessingException
     {
         // check that the customer with id exists
-        Customer found = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        if (customer.getEmail() != null) {
-            found.setEmail(customer.getEmail());
-        }
-        if (customer.getName() != null) {
-            found.setName(customer.getName());
-        }
-        if (customer.getAddress() != null) {
-            found.setAddress(customer.getAddress());
-        }
-        return mapper.writeValueAsString(customerRepository.save(found));
-    }
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
 
-    /**
-     *
-     * @param customerId
-     * @param newAddress
-     * @return the edited customer as a json string
-     * @throws JsonProcessingException
-     */
-    public String editCustomerAddress(Integer customerId, Address newAddress) throws JsonProcessingException
-    {
-        Customer found = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
-        Address oldAddress = found.getAddress();
-        if (newAddress.getHouseNumber() != null) {
-            oldAddress.setHouseNumber(newAddress.getHouseNumber());
+        if (name != null) {
+            customer.setName(name);
         }
-        if (newAddress.getPostcode() != null) {
-            oldAddress.setPostcode(newAddress.getPostcode());
+
+        if (email != null) {
+            customer.setEmail(email);
         }
-        if (newAddress.getRoadName() != null) {
-            oldAddress.setRoadName(newAddress.getRoadName());
+
+        Address address = customer.getAddress();
+
+        if (houseNumber != null) {
+            address.setHouseNumber(houseNumber);
         }
-        return mapper.writeValueAsString(customerRepository.save(found));
+
+        if (roadName != null) {
+            address.setRoadName(roadName);
+        }
+
+        if (postcode != null) {
+            address.setPostcode(postcode);
+        }
+
+        return mapper.writeValueAsString(customerRepository.save(customer));
     }
 
     public String deleteCustomer(Integer id)

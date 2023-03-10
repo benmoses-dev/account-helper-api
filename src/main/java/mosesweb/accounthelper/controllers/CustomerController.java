@@ -1,8 +1,8 @@
 package mosesweb.accounthelper.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import mosesweb.accounthelper.models.Address;
-import mosesweb.accounthelper.models.Customer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import mosesweb.accounthelper.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -93,9 +93,41 @@ public class CustomerController
      * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
     @PostMapping(value = "/customers/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String addNewCustomer(@RequestBody Customer customer) throws JsonProcessingException
+    public String addNewCustomer(@RequestBody ObjectNode customer) throws JsonProcessingException
     {
-        return customerService.addNewCustomer(customer);
+        // Extract request json
+        JsonNode nameNode = customer.get("name");
+        JsonNode emailNode = customer.get("email");
+        JsonNode houseNumberNode = customer.get("houseNumber");
+        JsonNode roadNameNode = customer.get("roadName");
+        JsonNode postcodeNode = customer.get("postcode");
+
+        // Initialise needed parameters for sale
+        String name = null;
+        String email = null;
+        Integer houseNumber = null;
+        String roadName = null;
+        String postcode = null;
+
+        // Validate http request json and parse json to java values if they are present
+        if (nameNode != null) {
+            name = nameNode.asText();
+        }
+        if (emailNode != null) {
+            email = emailNode.asText();
+        }
+        if (houseNumberNode != null) {
+            houseNumber = houseNumberNode.asInt();
+        }
+        if (roadNameNode != null) {
+            roadName = roadNameNode.asText();
+        }
+        if (postcodeNode != null) {
+            postcode = postcodeNode.asText();
+        }
+
+        // Pass the values to the sale service to validate and create the sale
+        return customerService.addNewCustomer(name, email, houseNumber, roadName, postcode);
     }
 
     /**
@@ -110,23 +142,39 @@ public class CustomerController
      */
     @PutMapping(value = "/customers/{id}/", produces = MediaType.APPLICATION_JSON_VALUE)
     public String editCustomer(@PathVariable("id") Integer id,
-                               @RequestBody Customer customer) throws JsonProcessingException
+                               @RequestBody ObjectNode customer) throws JsonProcessingException
     {
-        return customerService.editCustomer(id, customer);
-    }
+        // Extract request json
+        JsonNode nameNode = customer.get("name");
+        JsonNode emailNode = customer.get("email");
+        JsonNode houseNumberNode = customer.get("houseNumber");
+        JsonNode roadNameNode = customer.get("roadName");
+        JsonNode postcodeNode = customer.get("postcode");
 
-    /**
-     *
-     * @param customerId
-     * @param newAddress
-     * @return
-     * @throws JsonProcessingException
-     */
-    @PutMapping(value = "/customers/{id}/address/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String editCustomerAddress(@PathVariable("id") Integer customerId,
-                                      @RequestBody Address newAddress) throws JsonProcessingException
-    {
-        return customerService.editCustomerAddress(customerId, newAddress);
+        // Initialise needed parameters for sale
+        String name = null;
+        String email = null;
+        Integer houseNumber = null;
+        String roadName = null;
+        String postcode = null;
+
+        // Validate http request json and parse json to java values if they are present
+        if (nameNode != null) {
+            name = nameNode.asText();
+        }
+        if (emailNode != null) {
+            email = emailNode.asText();
+        }
+        if (houseNumberNode != null) {
+            houseNumber = houseNumberNode.asInt();
+        }
+        if (roadNameNode != null) {
+            roadName = roadNameNode.asText();
+        }
+        if (postcodeNode != null) {
+            postcode = postcodeNode.asText();
+        }
+        return customerService.editCustomer(id, name, email, houseNumber, roadName, postcode);
     }
 
     /**
