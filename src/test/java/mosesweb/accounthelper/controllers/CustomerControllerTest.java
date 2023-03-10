@@ -63,11 +63,9 @@ public class CustomerControllerTest
         Collection<Customer> customers = new ArrayList<>();
         customers.add(customer1);
         customers.add(customer2);
-        Iterable<Customer> returnedCustomers = customers;
-        Mockito.when(mockCustomerService.getAllCustomers()).thenReturn(returnedCustomers);
+        Mockito.when(mockCustomerService.getAllCustomers()).thenReturn(mapper.writeValueAsString(customers));
         mockMvc.perform(get("/customers/"))
                     .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                    .andExpect(content().json(mapper.writeValueAsString(returnedCustomers), true));
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 }

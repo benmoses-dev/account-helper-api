@@ -10,44 +10,50 @@ import java.util.Objects;
 
 /**
  *
- * An address, associated with a customer.
- * Has a house number, road name, and postcode.
- * Do not use in a hash based data structure as Address is mutable.
- * 
+ * An address, associated with a customer. Has a house number, road name, and
+ * postcode. Do not use in a hash based data structure as Address is mutable.
+ *
  * @author Ben Moses
  */
 @Entity
-@Table(name="address")
-public class Address {
+@Table(name = "address")
+public class Address
+{
+
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Integer id;
 
-    private int houseNumber;
+    @Column(name = "house_number")
+    private Integer houseNumber;
+
+    @Column(name = "road_name")
     private String roadName;
+
+    @Column(name = "postcode")
     private String postcode;
 
     public Address()
     {
     }
-    
-    public Address(int houseNumber, String roadName, String postcode)
+
+    public Address(Integer houseNumber, String roadName, String postcode)
     {
         this.houseNumber = houseNumber;
         this.roadName = roadName;
         this.postcode = postcode;
     }
-    
+
     /**
      *
      * @param houseNumber the house number of the address
      */
-    public void setHouseNumber(int houseNumber)
+    public void setHouseNumber(Integer houseNumber)
     {
         this.houseNumber = houseNumber;
     }
-    
+
     /**
      *
      * @param roadName the name of the road of the address
@@ -56,7 +62,7 @@ public class Address {
     {
         this.roadName = roadName;
     }
-    
+
     /**
      *
      * @param postcode the new postcode of the address
@@ -65,25 +71,25 @@ public class Address {
     {
         this.postcode = postcode;
     }
-    
+
     /**
-    *
-    * @return the id of the Address. null if not saved in the database
-    */
+     *
+     * @return the id of the Address. null if not saved in the database
+     */
     public Integer getId()
     {
         return id;
     }
 
     /**
-    *
-    * @return the house number of the Address
-    */
-    public int getHouseNumber()
+     *
+     * @return the house number of the Address
+     */
+    public Integer getHouseNumber()
     {
         return houseNumber;
     }
-    
+
     /**
      *
      * @return the name of the road of the Address
@@ -92,16 +98,16 @@ public class Address {
     {
         return roadName;
     }
-    
+
     /**
      *
      * @return the postcode of the Address
      */
     public String getPostcode()
     {
-      return postcode;
+        return postcode;
     }
-    
+
     @Override
     public boolean equals(Object o)
     {
@@ -115,10 +121,10 @@ public class Address {
         if ((this.id != null && address.id != null) && this.id.equals(address.id)) {
             return true;
         }
-        boolean result = (this.houseNumber != 0 && this.houseNumber == address.houseNumber);
+        boolean result = (this.houseNumber != null && address.houseNumber != null);
         result = result && (this.postcode != null && address.postcode != null);
         result = result && (this.roadName != null && address.roadName != null);
-        result = result && this.postcode.equals(address.postcode) && this.roadName.equals(address.roadName);
+        result = result && this.postcode.equals(address.postcode) && this.roadName.equals(address.roadName) && this.houseNumber.equals(address.houseNumber);
         return result && (this.id == null && address.id == null);
     }
 
@@ -127,7 +133,7 @@ public class Address {
     {
         int hash = 3;
         hash = 11 * hash + Objects.hashCode(this.id);
-        hash = 11 * hash + this.houseNumber;
+        hash = 11 * hash + Objects.hashCode(this.houseNumber);
         hash = 11 * hash + Objects.hashCode(this.roadName);
         hash = 11 * hash + Objects.hashCode(this.postcode);
         return hash;

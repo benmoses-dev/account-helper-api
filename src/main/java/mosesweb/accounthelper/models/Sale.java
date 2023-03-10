@@ -15,46 +15,51 @@ import mosesweb.accounthelper.exceptions.CustomerNeededException;
 
 /**
  *
- * A sale, either cash or credit.
- * Has a non-negative amount and a date not more than a day in the future.
- * A cash sale has an associated bank debit.
- * A credit sale has an associated receivable.
- * 
+ * A sale, either cash or credit. Has a non-negative amount and a date not more
+ * than a day in the future. A cash sale has an associated bank debit. A credit
+ * sale has an associated receivable.
+ *
  * @author Ben Moses
  */
 @Entity
-@Table(name="sales")
+@Table(name = "sale")
 public class Sale
 {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="id")
+    @Column(name = "id")
     private Integer id;
-    
+
+    @Column(name = "date")
     private LocalDate date;
+
+    @Column(name = "amount")
     private BigDecimal amount;
-    private boolean isCash;
-    
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="bank_debit_id")
+
+    @Column(name = "cash")
+    private boolean cash;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "bank_debit_id")
     private BankDebit bankDebit;
-    
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="receivable_id")
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "receivable_id")
     private Receivable receivable;
 
     public Sale()
     {
     }
-    
+
     /**
      *
      * @param amount the amount of the sale as a non-negative decimal.
      * @param date the date of the sale.
-     * @param isCash if false, a run-time exception is thrown; an invoice number and customer must be provided.
+     * @param cash whether the sale is a cash sale. If false, a run-time
+     * exception is thrown; an invoice number and customer must be provided.
      */
-    public Sale(BigDecimal amount, LocalDate date, boolean isCash)
+    public Sale(BigDecimal amount, LocalDate date, boolean cash)
     {
         // defensive to prevent undefined state
         if (amount == null || (amount.compareTo(BigDecimal.ZERO) < 0) || date == null) {
@@ -62,24 +67,28 @@ public class Sale
         }
         this.date = date;
         this.amount = amount;
-        this.isCash = isCash;
-        if (isCash) {
+        this.cash = cash;
+        if (cash) {
             this.bankDebit = new BankDebit(amount, date);
             this.receivable = null;
-        } else {
+        }
+        else {
             throw new CustomerNeededException();
         }
     }
-            
+
     /**
      *
      * @param amount the amount of the sale as a non-negative decimal.
      * @param date the date of the sale.
-     * @param isCash whether the sale is cash or credit.
-     * @param invoiceNumber if isCash is false, this must be a valid invoice number. Ignored if cash.
-     * @param customer if isCash is false, this must be a valid customer. Ignored if cash.
+     * @param cash whether the sale is cash or credit.
+     * @param invoiceNumber if isCash is false, this must be a valid invoice
+     * number. Ignored if cash.
+     * @param customer if isCash is false, this must be a valid customer.
+     * Ignored if cash.
      */
-    public Sale(BigDecimal amount, LocalDate date, boolean isCash, Integer invoiceNumber, Customer customer)
+    public Sale(BigDecimal amount, LocalDate date, boolean cash,
+                Integer invoiceNumber, Customer customer)
     {
         // defensive to prevent undefined state
         if (amount == null || (amount.compareTo(BigDecimal.ZERO) < 0) || date == null) {
@@ -87,11 +96,12 @@ public class Sale
         }
         this.date = date;
         this.amount = amount;
-        this.isCash = isCash;
-        if (isCash) {
+        this.cash = cash;
+        if (cash) {
             this.bankDebit = new BankDebit(amount, date);
             this.receivable = null;
-        } else {
+        }
+        else {
             // defensive to prevent undefined state
             if (invoiceNumber == null || customer == null) {
                 throw new RuntimeException();
@@ -134,9 +144,9 @@ public class Sale
      */
     public boolean isCash()
     {
-        return isCash;
+        return cash;
     }
-    
+
     /**
      *
      * @return the bank debit object associated with this cash sale
@@ -145,7 +155,7 @@ public class Sale
     {
         return bankDebit;
     }
-    
+
     /**
      *
      * @return the receivable object associated with this credit sale.
@@ -154,7 +164,7 @@ public class Sale
     {
         return receivable;
     }
-    
+
     /**
      *
      * @param invoiceNumber the target invoice number. This will be checked

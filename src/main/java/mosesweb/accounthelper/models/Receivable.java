@@ -14,46 +14,54 @@ import java.time.LocalDate;
 
 /**
  *
- * A receivable, associated with a credit sale and an existing customer.
- * Has a non-negative invoice number that is unique.
- * Has a non-negative amount and a date not more than a day in the future.
- * 
+ * A receivable, associated with a credit sale and an existing customer. Has a
+ * non-negative invoice number that is unique. Has a non-negative amount and a
+ * date not more than a day in the future.
+ *
  * @author Ben Moses
  */
 @Entity
-@Table(name="receivables")
-public class Receivable {
+@Table(name = "receivable")
+public class Receivable
+{
+
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Integer id;
 
+    @Column(name = "amount")
     private BigDecimal amount;
+
+    @Column(name = "date")
     private LocalDate date;
+
+    @Column(name = "invoice_number")
     private Integer invoiceNumber;
-    
+
     @ManyToOne()
-    @JoinColumn(name="customer_id")
+    @JoinColumn(name = "customer_id")
     @JsonIgnore
     private Customer customer;
 
     public Receivable()
     {
     }
-    
-    public Receivable(BigDecimal amount, LocalDate date, Integer invoiceNumber, Customer customer)
+
+    public Receivable(BigDecimal amount, LocalDate date, Integer invoiceNumber,
+                      Customer customer)
     {
         this.amount = amount;
         this.date = date;
         this.invoiceNumber = invoiceNumber;
         this.customer = customer;
     }
-    
+
     public Integer getId()
     {
         return id;
     }
-    
+
     public BigDecimal getAmount()
     {
         return amount;
@@ -63,12 +71,12 @@ public class Receivable {
     {
         return date;
     }
-    
+
     public Integer getInvoiceNumber()
     {
         return invoiceNumber;
     }
-    
+
     public Customer getCustomer()
     {
         return customer;

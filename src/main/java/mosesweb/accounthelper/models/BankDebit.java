@@ -11,37 +11,42 @@ import java.time.LocalDate;
 
 /**
  *
- * A bank debit, usually associated with a cash sale or a credit payment.
- * Has a non-negative amount and a date that is not more than a day in the future.
- * 
+ * A bank debit, usually associated with a cash sale or a credit payment. Has a
+ * non-negative amount and a date that is not more than a day in the future.
+ *
  * @author Ben Moses
  */
 @Entity
-@Table(name="bank_debits")
-public class BankDebit {
+@Table(name = "bank_debit")
+public class BankDebit
+{
+
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Integer id;
 
+    @Column(name = "amount")
     private BigDecimal amount;
+
+    @Column(name = "date")
     private LocalDate date;
 
     public BankDebit()
     {
     }
-    
+
     public BankDebit(BigDecimal amount, LocalDate date)
     {
         this.amount = amount;
         this.date = date;
     }
-    
+
     public Integer getId()
     {
         return id;
     }
-    
+
     public BigDecimal getAmount()
     {
         return amount;

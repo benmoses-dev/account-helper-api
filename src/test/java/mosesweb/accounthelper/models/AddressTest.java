@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
  */
 public class AddressTest
 {
-    
+
     public AddressTest()
     {
     }
@@ -19,10 +19,10 @@ public class AddressTest
     @Test
     public void testSetHouseNumber()
     {
-        int houseNumber = 2;
+        Integer houseNumber = 2;
         Address instance = new Address();
         instance.setHouseNumber(houseNumber);
-        assert (instance.getHouseNumber() == houseNumber);
+        assert (instance.getHouseNumber().equals(houseNumber));
     }
 
     /**
@@ -47,5 +47,5 @@ public class AddressTest
         Address instance = new Address();
         instance.setPostcode(postcode);
         assert (instance.getPostcode().equals(postcode));
-    }    
+    }
 }

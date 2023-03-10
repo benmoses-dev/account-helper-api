@@ -1,11 +1,13 @@
 package mosesweb.accounthelper.services;
 
-import java.util.Collection;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import java.text.SimpleDateFormat;
 import mosesweb.accounthelper.exceptions.CustomerAlreadyExistsException;
 import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
 import mosesweb.accounthelper.models.Address;
 import mosesweb.accounthelper.models.Customer;
-import mosesweb.accounthelper.models.Receivable;
 import mosesweb.accounthelper.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,35 +19,71 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomerService
 {
-    
+
     @Autowired
     private CustomerRepository customerRepository;
-    
-    
-    public Iterable<Customer> getAllCustomers()
+
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+    public CustomerService()
     {
-        return customerRepository.findAll();
+        mapper.findAndRegisterModules();
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
     }
-    
-    public Customer getCustomer(Integer id)
+
+    /**
+     *
+     * @return @throws JsonProcessingException
+     */
+    public String getAllCustomers() throws JsonProcessingException
     {
-        return customerRepository.findById(id).orElseThrow(
-                () -> new CustomerNotFoundException(id));
+        return mapper.writeValueAsString(customerRepository.findAll());
     }
-    
-    public Collection<Receivable> getCustomerLedger(Integer id)
+
+    /**
+     *
+     * @param id
+     * @return
+     * @throws JsonProcessingException
+     */
+    public String getCustomer(Integer id) throws JsonProcessingException
+    {
+        return mapper.writeValueAsString(customerRepository.findById(id).orElseThrow(
+                    () -> new CustomerNotFoundException(id)));
+    }
+
+    /**
+     *
+     * @param id
+     * @return
+     * @throws JsonProcessingException
+     */
+    public String getCustomerLedger(Integer id) throws JsonProcessingException
     {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        return customer.getReceivables();
+        return mapper.writeValueAsString(customer.getReceivables());
     }
-    
-    public Address getCustomerAddress(Integer id)
+
+    /**
+     *
+     * @param id
+     * @return
+     * @throws JsonProcessingException
+     */
+    public String getCustomerAddress(Integer id) throws JsonProcessingException
     {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
-        return customer.getAddress();
+        return mapper.writeValueAsString(customer.getAddress());
     }
-    
-    public Customer addNewCustomer(Customer customer)
+
+    /**
+     *
+     * @param customer
+     * @return
+     * @throws JsonProcessingException
+     */
+    public String addNewCustomer(Customer customer) throws JsonProcessingException
     {
         if (customer.getName() == null) {
             customer.setName("");
@@ -59,10 +97,17 @@ public class CustomerService
         if (customer.getId() != null) {
             throw new CustomerAlreadyExistsException(customer.getId());
         }
-        return customerRepository.save(customer);
+        return mapper.writeValueAsString(customerRepository.save(customer));
     }
-    
-    public Customer editCustomer(Integer id, Customer customer)
+
+    /**
+     *
+     * @param id
+     * @param customer
+     * @return
+     * @throws JsonProcessingException
+     */
+    public String editCustomer(Integer id, Customer customer) throws JsonProcessingException
     {
         // check that the customer with id exists
         Customer found = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
@@ -75,14 +120,21 @@ public class CustomerService
         if (customer.getAddress() != null) {
             found.setAddress(customer.getAddress());
         }
-        return customerRepository.save(found);
+        return mapper.writeValueAsString(customerRepository.save(found));
     }
-    
-    public Customer editCustomerAddress(Integer customerId, Address newAddress)
+
+    /**
+     *
+     * @param customerId
+     * @param newAddress
+     * @return the edited customer as a json string
+     * @throws JsonProcessingException
+     */
+    public String editCustomerAddress(Integer customerId, Address newAddress) throws JsonProcessingException
     {
         Customer found = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
         Address oldAddress = found.getAddress();
-        if (newAddress.getHouseNumber() != 0) {
+        if (newAddress.getHouseNumber() != null) {
             oldAddress.setHouseNumber(newAddress.getHouseNumber());
         }
         if (newAddress.getPostcode() != null) {
@@ -91,9 +143,9 @@ public class CustomerService
         if (newAddress.getRoadName() != null) {
             oldAddress.setRoadName(newAddress.getRoadName());
         }
-        return customerRepository.save(found);
+        return mapper.writeValueAsString(customerRepository.save(found));
     }
-    
+
     public String deleteCustomer(Integer id)
     {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));

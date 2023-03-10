@@ -16,38 +16,43 @@ import java.util.Collection;
 
 /**
  *
- * A customer in the system. Has a name.
- * Can be associated with an email and an address.
- * 
+ * A customer in the system. Has a name. Can be associated with an email and an
+ * address.
+ *
  * @author Ben Moses
  */
 @Entity
-@Table(name="customers")
-public class Customer {
+@Table(name = "customer")
+public class Customer
+{
+
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Integer id;
 
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "email")
     private String email;
-    
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="address_id")
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id")
     private Address address;
-    
-    @OneToMany(mappedBy="customer", fetch=FetchType.LAZY)
-    private Collection<Receivable> receivables = new ArrayList<>();
+
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    private final Collection<Receivable> receivables = new ArrayList<>();
 
     public Customer()
     {
     }
-    
+
     public void setName(String name)
     {
         this.name = name;
     }
-    
+
     /**
      *
      * @param email the new email of the customer
@@ -56,7 +61,7 @@ public class Customer {
     {
         this.email = email;
     }
-    
+
     /**
      *
      * @param address the new address of the customer
@@ -65,25 +70,25 @@ public class Customer {
     {
         this.address = address;
     }
-    
+
     /**
-    *
-    * @return the id of the Customer. null if not saved in the repository
-    */
+     *
+     * @return the id of the Customer. null if not saved in the repository
+     */
     public Integer getId()
     {
         return id;
     }
 
     /**
-    *
-    * @return the name of the Customer
-    */
+     *
+     * @return the name of the Customer
+     */
     public String getName()
     {
         return name;
     }
-    
+
     /**
      *
      * @return the email of the Customer
@@ -92,21 +97,22 @@ public class Customer {
     {
         return email;
     }
-    
+
     /**
      *
      * @return the address of the Customer
      */
     public Address getAddress()
     {
-      return address;
+        return address;
     }
-    
+
     /**
      *
      * Get the sales ledger of this customer.
-     * 
-     * @return a collection of all the receivables associated with this customer.
+     *
+     * @return a collection of all the receivables associated with this
+     * customer.
      */
     public Collection<Receivable> getReceivables()
     {

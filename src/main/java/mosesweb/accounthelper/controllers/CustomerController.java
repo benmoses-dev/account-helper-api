@@ -1,9 +1,8 @@
 package mosesweb.accounthelper.controllers;
 
-import mosesweb.accounthelper.models.Receivable;
-import mosesweb.accounthelper.models.Customer;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import mosesweb.accounthelper.models.Address;
-import java.util.Collection;
+import mosesweb.accounthelper.models.Customer;
 import mosesweb.accounthelper.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,20 +26,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CustomerController
 {
-    
+
     @Autowired
     private CustomerService customerService;
 
     // ***** PRESENTER *****
-    
     /**
      *
      * Returns a collection of all Customer objects in the system.
      *
      * @return a collection of all customers
+     * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
     @GetMapping(value = "/customers/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Iterable<Customer> getAllCustomers()
+    public String getAllCustomers() throws JsonProcessingException
     {
         return customerService.getAllCustomers();
     }
@@ -51,63 +50,85 @@ public class CustomerController
      *
      * @param id the unique customer id
      * @return the Customer with the given id if found, otherwise 404 error
+     * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
     @GetMapping(value = "/customers/{id}/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Customer getCustomer(@PathVariable("id") Integer id)
+    public String getCustomer(@PathVariable("id") Integer id) throws JsonProcessingException
     {
         return customerService.getCustomer(id);
     }
-    
+
+    /**
+     *
+     * @param id
+     * @return
+     * @throws JsonProcessingException
+     */
     @GetMapping(value = "/customers/{id}/ledger/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Collection<Receivable> getCustomerLedger(@PathVariable("id") Integer id)
+    public String getCustomerLedger(@PathVariable("id") Integer id) throws JsonProcessingException
     {
         return customerService.getCustomerLedger(id);
     }
-    
+
+    /**
+     *
+     * @param id
+     * @return
+     * @throws JsonProcessingException
+     */
     @GetMapping(value = "/customers/{id}/address/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Address getCustomerAddress(@PathVariable("id") Integer id)
+    public String getCustomerAddress(@PathVariable("id") Integer id) throws JsonProcessingException
     {
         return customerService.getCustomerAddress(id);
     }
-    
+
     // ***** CONTROLLER *****
-        /**
+    /**
      *
-     * Add a new Customer to the system. Throws a RuntimeException if the
+     * Add a new Customer to the system.Throws a RuntimeException if the
      * Customer name is null.
      *
      * @param customer the Customer object to create
      * @return the Customer object that was created
+     * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
     @PostMapping(value = "/customers/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Customer addNewCustomer(@RequestBody Customer customer)
+    public String addNewCustomer(@RequestBody Customer customer) throws JsonProcessingException
     {
         return customerService.addNewCustomer(customer);
     }
 
     /**
      *
-     * Edit an existing Customer. Throws a RuntimeException if the Customer does
+     * Edit an existing Customer.Throws a RuntimeException if the Customer does
      * not exist in the system. The Customer provided must have the correct ID.
      *
      * @param id the ID of the Customer to edit
      * @param customer the Customer object with the new details
      * @return String representing the new customer details
+     * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
     @PutMapping(value = "/customers/{id}/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Customer editCustomer(@PathVariable("id") Integer id,
-                                 @RequestBody Customer customer)
+    public String editCustomer(@PathVariable("id") Integer id,
+                               @RequestBody Customer customer) throws JsonProcessingException
     {
         return customerService.editCustomer(id, customer);
     }
-    
+
+    /**
+     *
+     * @param customerId
+     * @param newAddress
+     * @return
+     * @throws JsonProcessingException
+     */
     @PutMapping(value = "/customers/{id}/address/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Customer editCustomerAddress(@PathVariable("id") Integer customerId,
-                                        @RequestBody Address newAddress)
+    public String editCustomerAddress(@PathVariable("id") Integer customerId,
+                                      @RequestBody Address newAddress) throws JsonProcessingException
     {
         return customerService.editCustomerAddress(customerId, newAddress);
     }
-    
+
     /**
      *
      * Delete a Customer from the system with the provided ID. Throws a
