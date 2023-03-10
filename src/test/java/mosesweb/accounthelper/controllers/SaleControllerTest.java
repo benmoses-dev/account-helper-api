@@ -36,7 +36,7 @@ public class SaleControllerTest
 {
 
     @MockBean
-    private SaleService mockService;
+    private SaleService mockSaleService;
 
     @MockBean
     private CustomerService mockCustomerService;
@@ -59,12 +59,12 @@ public class SaleControllerTest
     public void testGetSale() throws Exception
     {
         Sale sale = new Sale(BigDecimal.valueOf(55.65), LocalDate.of(2020, Month.MARCH, 2), true);
-        Mockito.when(mockService.getSale(anyInt())).thenReturn(sale);
+        Mockito.when(mockSaleService.getSale(anyInt())).thenReturn(sale);
         mockMvc.perform(
-                get("/sales/1/"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(content().json(mapper.writeValueAsString(sale), true));
+                    get("/sales/1/"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(content().json(mapper.writeValueAsString(sale), true));
     }
 
     @Test
@@ -77,27 +77,27 @@ public class SaleControllerTest
         sales.add(firstSale);
         sales.add(secondSale);
         Iterable<Sale> returnedSales = sales;
-        Mockito.when(mockService.getAllSales()).thenReturn(returnedSales);
+        Mockito.when(mockSaleService.getAllSales()).thenReturn(returnedSales);
         mockMvc.perform(get("/sales/"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(content().json(mapper.writeValueAsString(sales), true));
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(content().json(mapper.writeValueAsString(returnedSales), true));
     }
 
     @Test
     public void testAddNewSale() throws Exception
     {
         Sale sale = new Sale(BigDecimal.valueOf(55.65), LocalDate.of(2020, Month.MARCH, 2), true);
-        Mockito.when(mockService.addNewSale(BigDecimal.valueOf(55.65), LocalDate.of(2020, Month.MARCH, 2), true, null, null)).thenReturn(sale);
+        Mockito.when(mockSaleService.addNewSale(BigDecimal.valueOf(55.65), LocalDate.of(2020, Month.MARCH, 2), true, null, null)).thenReturn(sale);
         Map<String, Object> request = new HashMap<>();
         request.put("amount", 55.65);
         request.put("date", "2020-03-02");
         request.put("cash", true);
         mockMvc.perform(post("/sales/")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(content().json(mapper.writeValueAsString(sale), true));
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(mapper.writeValueAsString(request)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(content().json(mapper.writeValueAsString(sale), true));
     }
 }
