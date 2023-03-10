@@ -44,6 +44,10 @@ public class Receivable
     @JsonIgnore
     private Customer customer;
 
+    protected Receivable()
+    {
+    }
+
     public Receivable(BigDecimal amount, LocalDate date, Integer invoiceNumber,
                       Customer customer)
     {

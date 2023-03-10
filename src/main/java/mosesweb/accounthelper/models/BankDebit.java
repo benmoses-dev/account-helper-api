@@ -32,6 +32,10 @@ public class BankDebit
     @Column(name = "date")
     private LocalDate date;
 
+    protected BankDebit()
+    {
+    }
+
     public BankDebit(BigDecimal amount, LocalDate date)
     {
         this.amount = amount;
