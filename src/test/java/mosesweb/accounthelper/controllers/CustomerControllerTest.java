@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import mosesweb.accounthelper.models.Address;
 import mosesweb.accounthelper.models.Customer;
 import mosesweb.accounthelper.services.CustomerService;
@@ -39,11 +41,12 @@ public class CustomerControllerTest
     private MockMvc mockMvc;
 
     private static ObjectMapper mapper = new ObjectMapper();
+    private static Customer bob = new Customer("bob", "bob@example.com", new Address(1, "bobsroad", "bo12 3bb"));
+    private static Customer alice = new Customer("alice", "alice@example.com", new Address(2, "aliceroad", "al1 3ce"));
 
     @BeforeAll
     public static void configMapper()
     {
-
         mapper.findAndRegisterModules();
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
@@ -52,20 +55,43 @@ public class CustomerControllerTest
     @Test
     public void testGetAllCustomers() throws Exception
     {
-        Customer customer1 = new Customer();
-        customer1.setName("bob");
-        customer1.setEmail("bob@example.com");
-        customer1.setAddress(new Address(1, "bobsroad", "bo12 3bb"));
-        Customer customer2 = new Customer();
-        customer1.setName("alice");
-        customer1.setEmail("alice@example.com");
-        customer1.setAddress(new Address(2, "aliceroad", "al1 3ce"));
         Collection<Customer> customers = new ArrayList<>();
-        customers.add(customer1);
-        customers.add(customer2);
+        customers.add(bob);
+        customers.add(alice);
         Mockito.when(mockCustomerService.getAllCustomers()).thenReturn(mapper.writeValueAsString(customers));
         mockMvc.perform(get("/customers/"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
+    }
+
+    @Test
+    public void testAddNewCustomer() throws Exception
+    {
+        Mockito.when(mockCustomerService.addNewCustomer("alice", "alice@example.com", 2, "aliceroad", "al1 3ce"))
+                    .thenReturn(mapper.writeValueAsString(alice));
+        Map<String, Object> request = new HashMap<>();
+        request.put("name", "alice");
+        request.put("email", "alice@example.com");
+        request.put("houseNumber", "2");
+        request.put("roadName", "aliceroad");
+        request.put("postcode", "al1 3ce");
+        mockMvc.perform(post("/customers/")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(mapper.writeValueAsString(request)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(content().json(mapper.writeValueAsString(alice), true));
+    }
+
+    @Test
+    public void testAddNewCustomer2() throws Exception
+    {
+        Customer blank = new Customer();
+        Mockito.when(mockCustomerService.addNewCustomer(null, null, null, null, null)).thenReturn(mapper.writeValueAsString(blank));
+        mockMvc.perform(post("/customers/")
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(content().json(mapper.writeValueAsString(blank), true));
     }
 }

@@ -94,7 +94,12 @@ public class SaleController
 
         // Validate http request json and parse json to java values if they are present
         if (amountNode != null) {
-            amount = amountNode.decimalValue();
+            if (amountNode.isNumber()) {
+                amount = amountNode.decimalValue();
+            }
+            else {
+                amount = BigDecimal.valueOf((amountNode.asDouble()));
+            }
         }
         if (dateNode != null) {
             date = LocalDate.parse(dateNode.asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));

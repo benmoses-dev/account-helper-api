@@ -93,14 +93,23 @@ public class CustomerController
      * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
     @PostMapping(value = "/customers/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String addNewCustomer(@RequestBody ObjectNode customer) throws JsonProcessingException
+    public String addNewCustomer(
+                @RequestBody(required = false) ObjectNode customer) throws JsonProcessingException
     {
-        // Extract request json
-        JsonNode nameNode = customer.get("name");
-        JsonNode emailNode = customer.get("email");
-        JsonNode houseNumberNode = customer.get("houseNumber");
-        JsonNode roadNameNode = customer.get("roadName");
-        JsonNode postcodeNode = customer.get("postcode");
+        JsonNode nameNode = null;
+        JsonNode emailNode = null;
+        JsonNode houseNumberNode = null;
+        JsonNode roadNameNode = null;
+        JsonNode postcodeNode = null;
+
+        if (customer != null) {
+            // Extract request json
+            nameNode = customer.get("name");
+            emailNode = customer.get("email");
+            houseNumberNode = customer.get("houseNumber");
+            roadNameNode = customer.get("roadName");
+            postcodeNode = customer.get("postcode");
+        }
 
         // Initialise needed parameters for sale
         String name = null;

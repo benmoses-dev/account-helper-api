@@ -32,10 +32,6 @@ public class BankDebit
     @Column(name = "date")
     private LocalDate date;
 
-    public BankDebit()
-    {
-    }
-
     public BankDebit(BigDecimal amount, LocalDate date)
     {
         this.amount = amount;

@@ -87,40 +87,25 @@ public class CustomerService
     {
         Customer customer = new Customer();
 
-        if (name == null) {
-            customer.setName("");
-        }
-        else {
+        if (name != null) {
             customer.setName(name);
         }
 
-        if (email == null) {
-            customer.setEmail("");
-        }
-        else {
+        if (email != null) {
             customer.setEmail(email);
         }
 
-        Address address = new Address();
+        Address address = customer.getAddress();
 
-        if (houseNumber == null) {
-            address.setHouseNumber(0);
-        }
-        else {
+        if (houseNumber != null) {
             address.setHouseNumber(houseNumber);
         }
 
-        if (roadName == null) {
-            address.setRoadName("");
-        }
-        else {
+        if (roadName != null) {
             address.setRoadName(roadName);
         }
 
-        if (postcode == null) {
-            address.setPostcode("");
-        }
-        else {
+        if (postcode != null) {
             address.setPostcode(postcode);
         }
 

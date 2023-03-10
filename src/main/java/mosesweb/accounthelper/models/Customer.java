@@ -46,6 +46,24 @@ public class Customer
 
     public Customer()
     {
+        this("", "", new Address());
+    }
+
+    public Customer(String name)
+    {
+        this(name, "", new Address());
+    }
+
+    public Customer(String name, String email)
+    {
+        this(name, email, new Address());
+    }
+
+    public Customer(String name, String email, Address address)
+    {
+        this.name = name;
+        this.email = email;
+        this.address = address;
     }
 
     public void setName(String name)

@@ -11,7 +11,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import mosesweb.accounthelper.exceptions.CustomerNeededException;
 
 /**
  *
@@ -48,10 +47,6 @@ public class Sale
     @JoinColumn(name = "receivable_id")
     private Receivable receivable;
 
-    public Sale()
-    {
-    }
-
     /**
      *
      * @param amount the amount of the sale as a non-negative decimal.
@@ -61,20 +56,7 @@ public class Sale
      */
     public Sale(BigDecimal amount, LocalDate date, boolean cash)
     {
-        // defensive to prevent undefined state
-        if (amount == null || (amount.compareTo(BigDecimal.ZERO) < 0) || date == null) {
-            throw new RuntimeException();
-        }
-        this.date = date;
-        this.amount = amount;
-        this.cash = cash;
-        if (cash) {
-            this.bankDebit = new BankDebit(amount, date);
-            this.receivable = null;
-        }
-        else {
-            throw new CustomerNeededException();
-        }
+        this(amount, date, cash, null, null);
     }
 
     /**

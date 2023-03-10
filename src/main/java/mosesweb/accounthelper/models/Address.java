@@ -36,6 +36,22 @@ public class Address
 
     public Address()
     {
+        this(0, "", "");
+    }
+
+    public Address(Integer houseNumber)
+    {
+        this(houseNumber, "", "");
+    }
+
+    public Address(String roadName)
+    {
+        this(0, roadName, "");
+    }
+
+    public Address(Integer houseNumber, String roadName)
+    {
+        this(houseNumber, roadName, "");
     }
 
     public Address(Integer houseNumber, String roadName, String postcode)

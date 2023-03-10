@@ -43,6 +43,7 @@ public class SaleControllerTest
     private CustomerService mockCustomerService;
 
     private static ObjectMapper mapper = new ObjectMapper();
+    private static Customer bob = new Customer("bob", "bob@example.com", new Address(1, "bobsroad", "bo12 3bb"));
 
     @Autowired
     private MockMvc mockMvc;
@@ -71,12 +72,13 @@ public class SaleControllerTest
     public void testGetAllSales() throws Exception
     {
         Sale firstSale = new Sale(BigDecimal.valueOf(55.65), LocalDate.of(2020, Month.MARCH, 2), true);
-        Customer customer = new Customer();
-        Sale secondSale = new Sale(BigDecimal.valueOf(33.33), LocalDate.of(2022, Month.DECEMBER, 17), false, 1, customer);
+        Sale secondSale = new Sale(BigDecimal.valueOf(33.33), LocalDate.of(2022, Month.DECEMBER, 17), false, 1, bob);
         Collection<Sale> sales = new ArrayList<>();
         sales.add(firstSale);
         sales.add(secondSale);
+
         Mockito.when(mockSaleService.getAllSales()).thenReturn(mapper.writeValueAsString(sales));
+
         mockMvc.perform(get("/sales/"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
@@ -86,11 +88,14 @@ public class SaleControllerTest
     public void testAddNewSale1() throws Exception
     {
         Sale sale = new Sale(BigDecimal.valueOf(55.65), LocalDate.of(2020, Month.MARCH, 2), true);
+
         Mockito.when(mockSaleService.addNewSale(BigDecimal.valueOf(55.65), LocalDate.of(2020, Month.MARCH, 2), true, null, null)).thenReturn(mapper.writeValueAsString(sale));
+
         Map<String, Object> request = new HashMap<>();
         request.put("amount", 55.65);
         request.put("date", "2020-03-02");
         request.put("cash", true);
+
         mockMvc.perform(post("/sales/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(mapper.writeValueAsString(request)))
@@ -102,18 +107,19 @@ public class SaleControllerTest
     @Test
     public void testAddNewSale2() throws Exception
     {
-        Customer bob = new Customer();
-        bob.setName("bob");
-        bob.setEmail("bob@example.com");
-        bob.setAddress(new Address(1, "bobsroad", "bo1 2bb"));
-        Sale sale = new Sale(BigDecimal.valueOf(55.65), LocalDate.of(2020, Month.MARCH, 2), false, 1234, bob);
-        Mockito.when(mockSaleService.addNewSale(BigDecimal.valueOf(55.65), LocalDate.of(2020, Month.MARCH, 2), false, 1234, 1)).thenReturn(mapper.writeValueAsString(sale));
+        Sale sale = new Sale(BigDecimal.valueOf(33.33), LocalDate.of(2020, Month.MARCH, 2), false, 1234, bob);
+
+        Mockito.when(mockSaleService
+                    .addNewSale(BigDecimal.valueOf(33.33), LocalDate.of(2020, Month.MARCH, 2), false, 1234, 1))
+                    .thenReturn(mapper.writeValueAsString(sale));
+
         Map<String, Object> request = new HashMap<>();
-        request.put("amount", 55.65);
+        request.put("amount", "33.33");
         request.put("date", "2020-03-02");
-        request.put("cash", false);
-        request.put("invoiceNumber", 1234);
-        request.put("customerId", 1);
+        request.put("cash", "false");
+        request.put("invoiceNumber", "1234");
+        request.put("customerId", "1");
+
         mockMvc.perform(post("/sales/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(mapper.writeValueAsString(request)))
