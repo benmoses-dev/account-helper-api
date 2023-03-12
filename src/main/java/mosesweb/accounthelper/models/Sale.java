@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -31,9 +32,14 @@ public class Sale
     private Integer id;
 
     @Column(name = "date")
+    @NotNull(message = "cannot be null")
+    @PastOrPresent(message = "date cannot be in the future")
     private LocalDate date;
 
     @Column(name = "amount")
+    @NotNull(message = "cannot be null")
+    @Positive(message = "must be positive")
+    @Digits(integer = 9, fraction = 2, message = "maximum of two decimal places")
     private BigDecimal amount;
 
     @Column(name = "cash")
