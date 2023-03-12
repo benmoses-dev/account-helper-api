@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -31,12 +32,19 @@ public class Receivable
     private Integer id;
 
     @Column(name = "amount")
+    @NotNull(message = "cannot be null")
+    @PositiveOrZero(message = "must not be negative")
+    @Digits(integer = 9, fraction = 2, message = "maximum of two decimal places")
     private BigDecimal amount;
 
     @Column(name = "date")
+    @NotNull(message = "cannot be null")
+    @PastOrPresent(message = "date cannot be in the future")
     private LocalDate date;
 
     @Column(name = "invoice_number")
+    @NotNull(message = "cannot be null")
+    @Positive(message = "must be positive")
     private Integer invoiceNumber;
 
     @ManyToOne()

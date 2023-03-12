@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -27,9 +28,14 @@ public class BankDebit
     private Integer id;
 
     @Column(name = "amount")
+    @NotNull(message = "cannot be null")
+    @PositiveOrZero(message = "must not be negative")
+    @Digits(integer = 9, fraction = 2, message = "maximum of two decimal places")
     private BigDecimal amount;
 
     @Column(name = "date")
+    @NotNull(message = "cannot be null")
+    @PastOrPresent(message = "date cannot be in the future")
     private LocalDate date;
 
     protected BankDebit()

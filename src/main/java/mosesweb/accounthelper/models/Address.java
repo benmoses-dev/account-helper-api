@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.*;
 import java.util.Objects;
 
 /**
@@ -26,12 +27,15 @@ public class Address
     private Integer id;
 
     @Column(name = "house_number")
+    @PositiveOrZero(message = "must not be negative")
     private Integer houseNumber;
 
     @Column(name = "road_name")
+    @NotNull(message = "cannot be null")
     private String roadName;
 
     @Column(name = "postcode")
+    @NotNull(message = "cannot be null")
     private String postcode;
 
     public Address()

@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -32,13 +33,16 @@ public class Customer
     private Integer id;
 
     @Column(name = "name")
+    @NotNull(message = "cannot be null")
     private String name;
 
     @Column(name = "email")
+    @NotNull(message = "cannot be null")
     private String email;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")
+    @NotNull(message = "cannot be null")
     private Address address;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)

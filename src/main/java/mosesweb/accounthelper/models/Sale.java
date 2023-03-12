@@ -38,7 +38,7 @@ public class Sale
 
     @Column(name = "amount")
     @NotNull(message = "cannot be null")
-    @Positive(message = "must be positive")
+    @PositiveOrZero(message = "must not be negative")
     @Digits(integer = 9, fraction = 2, message = "maximum of two decimal places")
     private BigDecimal amount;
 
@@ -92,7 +92,8 @@ public class Sale
         if (cash) {
             this.bankDebit = new BankDebit(amount, date);
             this.receivable = null;
-        } else {
+        }
+        else {
             // defensive to prevent undefined state
             if (invoiceNumber == null || customer == null) {
                 throw new RuntimeException();
