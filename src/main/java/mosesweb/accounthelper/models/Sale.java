@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -47,10 +48,12 @@ public class Sale
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "bank_debit_id")
+    @Valid
     private BankDebit bankDebit;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "receivable_id")
+    @Valid
     private Receivable receivable;
 
     protected Sale()
@@ -82,10 +85,6 @@ public class Sale
     public Sale(BigDecimal amount, LocalDate date, boolean cash,
                 Integer invoiceNumber, Customer customer)
     {
-        // defensive to prevent undefined state
-        if (amount == null || (amount.compareTo(BigDecimal.ZERO) < 0) || date == null) {
-            throw new RuntimeException();
-        }
         this.date = date;
         this.amount = amount;
         this.cash = cash;
@@ -95,7 +94,7 @@ public class Sale
         }
         else {
             // defensive to prevent undefined state
-            if (invoiceNumber == null || customer == null) {
+            if (customer == null) {
                 throw new RuntimeException();
             }
             this.receivable = new Receivable(amount, date, invoiceNumber, customer);

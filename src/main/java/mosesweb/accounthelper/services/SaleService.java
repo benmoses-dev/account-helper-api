@@ -3,13 +3,12 @@ package mosesweb.accounthelper.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import jakarta.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import mosesweb.accounthelper.exceptions.AmountNotValidException;
 import mosesweb.accounthelper.exceptions.CustomerNeededException;
 import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
-import mosesweb.accounthelper.exceptions.DateNotValidException;
 import mosesweb.accounthelper.exceptions.InvoiceNumberNeededException;
 import mosesweb.accounthelper.exceptions.InvoiceNumberNotUniqueException;
 import mosesweb.accounthelper.exceptions.SaleNotFoundException;
@@ -57,11 +56,13 @@ public class SaleService
      * @param id
      * @return
      * @throws com.fasterxml.jackson.core.JsonProcessingException
+     * @throws mosesweb.accounthelper.exceptions.SaleNotFoundException
      */
-    public String getSale(Integer id) throws JsonProcessingException
+    public String getSale(Integer id) throws JsonProcessingException,
+                                             SaleNotFoundException
     {
         return mapper.writeValueAsString(saleRepository.findById(id).orElseThrow(
-                    () -> new SaleNotFoundException(id)));
+                () -> new SaleNotFoundException(id)));
     }
 
     /**
@@ -73,24 +74,23 @@ public class SaleService
      * @param customerId
      * @return
      * @throws JsonProcessingException
+     * @throws mosesweb.accounthelper.exceptions.InvoiceNumberNeededException
+     * @throws mosesweb.accounthelper.exceptions.CustomerNeededException
+     * @throws mosesweb.accounthelper.exceptions.InvoiceNumberNotUniqueException
+     * @throws mosesweb.accounthelper.exceptions.CustomerNotFoundException
      */
     public String addNewSale(BigDecimal amount, LocalDate date, boolean cash,
-                             Integer invoiceNumber, Integer customerId) throws JsonProcessingException
+                             Integer invoiceNumber, Integer customerId) throws
+            JsonProcessingException, InvoiceNumberNeededException,
+            CustomerNeededException, InvoiceNumberNotUniqueException,
+            CustomerNotFoundException
     {
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
-            // The amount must be non-negative
-            throw new AmountNotValidException(amount);
-        }
-        if (date == null || date.isAfter(LocalDate.now().plusDays(1))) {
-            // The date cannot be more than a day in the future
-            throw new DateNotValidException(date, LocalDate.now());
-        }
         if (cash) {
             Sale sale = new Sale(amount, date, true);
-            return mapper.writeValueAsString(saleRepository.save(sale));
+            return mapper.writeValueAsString(saveSale(sale));
         }
         // A valid customer and invoice number is needed - this is a credit sale
-        if (invoiceNumber == null || invoiceNumber.compareTo(0) < 0) {
+        if (invoiceNumber == null) {
             throw new InvoiceNumberNeededException(invoiceNumber);
         }
         if (customerId == null || customerId.compareTo(0) < 0) {
@@ -106,15 +106,16 @@ public class SaleService
             }
         }
         Sale sale = new Sale(amount, date, false, invoiceNumber, customer);
-        return mapper.writeValueAsString(saleRepository.save(sale));
+        return mapper.writeValueAsString(saveSale(sale));
     }
 
     /**
      *
      * @param id
      * @return
+     * @throws mosesweb.accounthelper.exceptions.SaleNotFoundException
      */
-    public String deleteSale(Integer id)
+    public String deleteSale(Integer id) throws SaleNotFoundException
     {
         if (!saleRepository.existsById(id)) {
             throw new SaleNotFoundException(id);
@@ -131,5 +132,13 @@ public class SaleService
     {
         saleRepository.deleteAll();
         return "success: all sales deleted. I hope you're happy...";
+    }
+
+    private Sale saveSale(Sale sale) throws ConstraintViolationException
+    {
+        MyModelValidator validator = new MyModelValidator();
+        validator.validate(sale);
+        return sale;
+        //return saleRepository.save(sale);
     }
 }

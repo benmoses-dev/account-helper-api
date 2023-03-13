@@ -3,9 +3,9 @@ package mosesweb.accounthelper.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import jakarta.validation.ConstraintViolationException;
 import java.text.SimpleDateFormat;
 import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
-import mosesweb.accounthelper.models.Address;
 import mosesweb.accounthelper.models.Customer;
 import mosesweb.accounthelper.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,23 +33,27 @@ public class CustomerService
 
     /**
      *
-     * @return @throws JsonProcessingException
+     * @return a Json string of all customers
+     * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
     public String getAllCustomers() throws JsonProcessingException
     {
         return mapper.writeValueAsString(customerRepository.findAll());
+
     }
 
     /**
      *
      * @param id
      * @return
-     * @throws JsonProcessingException
+     * @throws CustomerNotFoundException
+     * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
-    public String getCustomer(Integer id) throws JsonProcessingException
+    public String getCustomer(Integer id) throws CustomerNotFoundException,
+                                                 JsonProcessingException
     {
         return mapper.writeValueAsString(customerRepository.findById(id).orElseThrow(
-                    () -> new CustomerNotFoundException(id)));
+                () -> new CustomerNotFoundException(id)));
     }
 
     /**
@@ -57,8 +61,10 @@ public class CustomerService
      * @param id
      * @return
      * @throws JsonProcessingException
+     * @throws mosesweb.accounthelper.exceptions.CustomerNotFoundException
      */
-    public String getCustomerLedger(Integer id) throws JsonProcessingException
+    public String getCustomerLedger(Integer id) throws JsonProcessingException,
+                                                       CustomerNotFoundException
     {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
         return mapper.writeValueAsString(customer.getReceivables());
@@ -69,8 +75,10 @@ public class CustomerService
      * @param id
      * @return
      * @throws JsonProcessingException
+     * @throws mosesweb.accounthelper.exceptions.CustomerNotFoundException
      */
-    public String getCustomerAddress(Integer id) throws JsonProcessingException
+    public String getCustomerAddress(Integer id) throws JsonProcessingException,
+                                                        CustomerNotFoundException
     {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
         return mapper.writeValueAsString(customer.getAddress());
@@ -78,12 +86,17 @@ public class CustomerService
 
     /**
      *
-     * @param customer
+     * @param name
+     * @param email
+     * @param houseNumber
+     * @param roadName
+     * @param postcode
      * @return
      * @throws JsonProcessingException
      */
     public String addNewCustomer(String name, String email, Integer houseNumber,
-                                 String roadName, String postcode) throws JsonProcessingException
+                                 String roadName, String postcode) throws
+            JsonProcessingException
     {
         Customer customer = new Customer();
 
@@ -95,33 +108,37 @@ public class CustomerService
             customer.setEmail(email);
         }
 
-        Address address = customer.getAddress();
-
         if (houseNumber != null) {
-            address.setHouseNumber(houseNumber);
+            customer.setHouseNumber(houseNumber);
         }
 
         if (roadName != null) {
-            address.setRoadName(roadName);
+            customer.setRoadName(roadName);
         }
 
         if (postcode != null) {
-            address.setPostcode(postcode);
+            customer.setPostcode(postcode);
         }
 
-        return mapper.writeValueAsString(customerRepository.save(customer));
+        return mapper.writeValueAsString(saveCustomer(customer));
     }
 
     /**
      *
      * @param id
-     * @param customer
+     * @param name
+     * @param email
+     * @param houseNumber
+     * @param roadName
+     * @param postcode
      * @return
      * @throws JsonProcessingException
+     * @throws mosesweb.accounthelper.exceptions.CustomerNotFoundException
      */
     public String editCustomer(Integer id, String name, String email,
                                Integer houseNumber, String roadName,
-                               String postcode) throws JsonProcessingException
+                               String postcode) throws JsonProcessingException,
+                                                       CustomerNotFoundException
     {
         // check that the customer with id exists
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
@@ -134,24 +151,28 @@ public class CustomerService
             customer.setEmail(email);
         }
 
-        Address address = customer.getAddress();
-
         if (houseNumber != null) {
-            address.setHouseNumber(houseNumber);
+            customer.setHouseNumber(houseNumber);
         }
 
         if (roadName != null) {
-            address.setRoadName(roadName);
+            customer.setRoadName(roadName);
         }
 
         if (postcode != null) {
-            address.setPostcode(postcode);
+            customer.setPostcode(postcode);
         }
 
-        return mapper.writeValueAsString(customerRepository.save(customer));
+        return mapper.writeValueAsString(saveCustomer(customer));
     }
 
-    public String deleteCustomer(Integer id)
+    /**
+     *
+     * @param id
+     * @return
+     * @throws CustomerNotFoundException
+     */
+    public String deleteCustomer(Integer id) throws CustomerNotFoundException
     {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
         String result = "customer " + customer.getName() + " with ID " + customer.getId() + " deleted.";
@@ -160,5 +181,14 @@ public class CustomerService
             return result;
         }
         return "This customer has receivables and must be kept for system records. Please consider removing personal details instead of deleting.";
+    }
+
+    private Customer saveCustomer(Customer customer) throws
+            ConstraintViolationException
+    {
+        MyModelValidator validator = new MyModelValidator();
+        validator.validate(customer);
+        return customer;
+        //return customerRepository.save(customer);
     }
 }

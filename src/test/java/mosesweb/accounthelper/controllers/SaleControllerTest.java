@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import mosesweb.accounthelper.models.Address;
 import mosesweb.accounthelper.models.Customer;
 import mosesweb.accounthelper.models.Sale;
 import mosesweb.accounthelper.services.CustomerService;
@@ -43,7 +42,7 @@ public class SaleControllerTest
     private CustomerService mockCustomerService;
 
     private static ObjectMapper mapper = new ObjectMapper();
-    private static Customer bob = new Customer("bob", "bob@example.com", new Address(1, "bobsroad", "bo12 3bb"));
+    private static Customer bob = new Customer("bob", "bob@example.com", 1, "bobsroad", "bo12 3bb");
 
     @Autowired
     private MockMvc mockMvc;
@@ -63,9 +62,9 @@ public class SaleControllerTest
         Sale sale = new Sale(BigDecimal.valueOf(55.65), LocalDate.of(2020, Month.MARCH, 2), true);
         Mockito.when(mockSaleService.getSale(anyInt())).thenReturn(mapper.writeValueAsString(sale));
         mockMvc.perform(
-                    get("/sales/1/"))
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
+                get("/sales/1/"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Test
@@ -80,8 +79,8 @@ public class SaleControllerTest
         Mockito.when(mockSaleService.getAllSales()).thenReturn(mapper.writeValueAsString(sales));
 
         mockMvc.perform(get("/sales/"))
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Test
@@ -97,11 +96,11 @@ public class SaleControllerTest
         request.put("cash", true);
 
         mockMvc.perform(post("/sales/")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(mapper.writeValueAsString(request)))
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                    .andExpect(content().json(mapper.writeValueAsString(sale), true));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(content().json(mapper.writeValueAsString(sale), true));
     }
 
     @Test
@@ -110,8 +109,8 @@ public class SaleControllerTest
         Sale sale = new Sale(BigDecimal.valueOf(33.33), LocalDate.of(2020, Month.MARCH, 2), false, 1234, bob);
 
         Mockito.when(mockSaleService
-                    .addNewSale(BigDecimal.valueOf(33.33), LocalDate.of(2020, Month.MARCH, 2), false, 1234, 1))
-                    .thenReturn(mapper.writeValueAsString(sale));
+                .addNewSale(BigDecimal.valueOf(33.33), LocalDate.of(2020, Month.MARCH, 2), false, 1234, 1))
+                .thenReturn(mapper.writeValueAsString(sale));
 
         Map<String, Object> request = new HashMap<>();
         request.put("amount", "33.33");
@@ -121,10 +120,10 @@ public class SaleControllerTest
         request.put("customerId", "1");
 
         mockMvc.perform(post("/sales/")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(mapper.writeValueAsString(request)))
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                    .andExpect(content().json(mapper.writeValueAsString(sale), true));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(content().json(mapper.writeValueAsString(sale), true));
     }
 }

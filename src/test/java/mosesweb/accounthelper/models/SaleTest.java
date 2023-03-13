@@ -2,9 +2,9 @@ package mosesweb.accounthelper.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -12,16 +12,16 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class SaleTest
 {
-    
+
     private static LocalDate date;
     private static BigDecimal amount;
     private static Customer c;
     private static Integer invoiceNumber;
-    
+
     public SaleTest()
     {
     }
-    
+
     @BeforeAll
     public static void setUpClass()
     {
@@ -30,11 +30,9 @@ public class SaleTest
         c = new Customer();
         c.setEmail("ben@example.com");
         c.setName("ben");
-        Address address = new Address();
-        address.setHouseNumber(2);
-        address.setPostcode("ln10bh");
-        address.setRoadName("london road");
-        c.setAddress(address);
+        c.setHouseNumber(2);
+        c.setPostcode("ln10bh");
+        c.setRoadName("london road");
         invoiceNumber = 3884;
     }
 
@@ -48,7 +46,7 @@ public class SaleTest
         boolean result = sale.invoiceNumberMatches(invoiceNumber);
         assertEquals(true, result);
     }
-    
+
     /**
      * Test of invoiceNumberMatches method, of class Sale.
      */
@@ -59,7 +57,7 @@ public class SaleTest
         boolean result = sale.invoiceNumberMatches(1234);
         assertEquals(false, result);
     }
-    
+
     /**
      * Test of invoiceNumberMatches method, of class Sale.
      */

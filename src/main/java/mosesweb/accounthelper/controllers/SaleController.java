@@ -6,6 +6,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import mosesweb.accounthelper.exceptions.CustomerNeededException;
+import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
+import mosesweb.accounthelper.exceptions.InvoiceNumberNeededException;
+import mosesweb.accounthelper.exceptions.InvoiceNumberNotUniqueException;
+import mosesweb.accounthelper.exceptions.SaleNotFoundException;
 import mosesweb.accounthelper.services.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -56,9 +61,11 @@ public class SaleController
      * @param id the unique id of the Sale
      * @return the Sale with the given id
      * @throws com.fasterxml.jackson.core.JsonProcessingException
+     * @throws mosesweb.accounthelper.exceptions.SaleNotFoundException
      */
     @GetMapping(value = "/sales/{id}/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String getSale(@PathVariable("id") Integer id) throws JsonProcessingException
+    public String getSale(@PathVariable("id") Integer id) throws
+            JsonProcessingException, SaleNotFoundException
     {
         return saleService.getSale(id);
     }
@@ -67,18 +74,25 @@ public class SaleController
     /**
      *
      * Adds a new sale to the system.If the sale is a cash sale, a BankDebit
-     * will be created and attached to the sale. Otherwise, a Receivable will be
+     * will be created and attached to the sale.Otherwise, a Receivable will be
      * created and attached to the sale: a customer ID and a unique invoice
      * number will need to be provided alongside the sale; both can be omitted
-     * if the sale is cash. The date must be formatted as yyyy-MM-dd.
+     * if the sale is cash.The date must be formatted as yyyy-MM-dd.
      *
      * @param saleWrapper amount, date, isCash, invoiceNumber, and customerId to
      * add. Set cash to true to create a cash sale.
      * @return the Sale that has been added.
      * @throws com.fasterxml.jackson.core.JsonProcessingException
+     * @throws mosesweb.accounthelper.exceptions.InvoiceNumberNeededException
+     * @throws mosesweb.accounthelper.exceptions.CustomerNeededException
+     * @throws mosesweb.accounthelper.exceptions.InvoiceNumberNotUniqueException
+     * @throws mosesweb.accounthelper.exceptions.CustomerNotFoundException
      */
     @PostMapping(value = "/sales/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String addNewSale(@RequestBody ObjectNode saleWrapper) throws JsonProcessingException
+    public String addNewSale(@RequestBody ObjectNode saleWrapper) throws
+            JsonProcessingException, InvoiceNumberNeededException,
+            CustomerNeededException, InvoiceNumberNotUniqueException,
+            CustomerNotFoundException
     {
         // Extract request json
         JsonNode amountNode = saleWrapper.get("amount");
@@ -122,14 +136,16 @@ public class SaleController
 
     /**
      *
-     * Helper method for development. Should a sale be deleted in a production
+     * Helper method for development.Should a sale be deleted in a production
      * system?
      *
      * @param id the id of the sale to delete.
      * @return success if the operation was successful.
+     * @throws mosesweb.accounthelper.exceptions.SaleNotFoundException
      */
     @DeleteMapping(value = "/sales/{id}/")
-    public String deleteSale(@PathVariable("id") Integer id)
+    public String deleteSale(@PathVariable("id") Integer id) throws
+            SaleNotFoundException
     {
         return saleService.deleteSale(id);
     }

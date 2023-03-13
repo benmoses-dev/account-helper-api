@@ -34,10 +34,12 @@ public class Customer
 
     @Column(name = "name")
     @NotNull(message = "cannot be null")
+    @Pattern(regexp = "[a-zA-Z\\s]*", message = "name must only contain letters or whitespace")
     private String name;
 
     @Column(name = "email")
     @NotNull(message = "cannot be null")
+    @Email
     private String email;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -50,29 +52,20 @@ public class Customer
 
     public Customer()
     {
-        this("", "", new Address());
+        this("", "", 0, "", "");
     }
 
-    public Customer(String name)
+    public Customer(String name, String email, Integer houseNumber,
+                    String roadName, String postcode)
     {
-        this(name, "", new Address());
-    }
-
-    public Customer(String name, String email)
-    {
-        this(name, email, new Address());
-    }
-
-    public Customer(String name, String email, Address address)
-    {
-        this.name = name;
+        this.name = name.strip().replaceAll("\\s\\s", " ");
         this.email = email;
-        this.address = address;
+        this.address = new Address(houseNumber, roadName, postcode);
     }
 
     public void setName(String name)
     {
-        this.name = name;
+        this.name = name.strip().replaceAll("\\s\\s", " ");
     }
 
     /**
@@ -84,13 +77,19 @@ public class Customer
         this.email = email;
     }
 
-    /**
-     *
-     * @param address the new address of the customer
-     */
-    public void setAddress(Address address)
+    public void setHouseNumber(Integer houseNumber)
     {
-        this.address = address;
+        this.address.setHouseNumber(houseNumber);
+    }
+
+    public void setRoadName(String roadName)
+    {
+        this.address.setRoadName(roadName);
+    }
+
+    public void setPostcode(String postcode)
+    {
+        this.address.setPostcode(postcode);
     }
 
     /**

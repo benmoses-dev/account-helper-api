@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import mosesweb.accounthelper.models.Address;
 import mosesweb.accounthelper.models.Customer;
 import mosesweb.accounthelper.services.CustomerService;
 import mosesweb.accounthelper.services.SaleService;
@@ -41,8 +40,8 @@ public class CustomerControllerTest
     private MockMvc mockMvc;
 
     private static ObjectMapper mapper = new ObjectMapper();
-    private static Customer bob = new Customer("bob", "bob@example.com", new Address(1, "bobsroad", "bo12 3bb"));
-    private static Customer alice = new Customer("alice", "alice@example.com", new Address(2, "aliceroad", "al1 3ce"));
+    private static Customer bob = new Customer("bob", "bob@example.com", 1, "bobsroad", "bo12 3bb");
+    private static Customer alice = new Customer("alice", "alice@example.com", 2, "aliceroad", "al1 3ce");
 
     @BeforeAll
     public static void configMapper()
@@ -60,15 +59,15 @@ public class CustomerControllerTest
         customers.add(alice);
         Mockito.when(mockCustomerService.getAllCustomers()).thenReturn(mapper.writeValueAsString(customers));
         mockMvc.perform(get("/customers/"))
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Test
     public void testAddNewCustomer() throws Exception
     {
         Mockito.when(mockCustomerService.addNewCustomer("alice", "alice@example.com", 2, "aliceroad", "al1 3ce"))
-                    .thenReturn(mapper.writeValueAsString(alice));
+                .thenReturn(mapper.writeValueAsString(alice));
         Map<String, Object> request = new HashMap<>();
         request.put("name", "alice");
         request.put("email", "alice@example.com");
@@ -76,11 +75,11 @@ public class CustomerControllerTest
         request.put("roadName", "aliceroad");
         request.put("postcode", "al1 3ce");
         mockMvc.perform(post("/customers/")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(mapper.writeValueAsString(request)))
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                    .andExpect(content().json(mapper.writeValueAsString(alice), true));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(content().json(mapper.writeValueAsString(alice), true));
     }
 
     @Test
@@ -89,9 +88,9 @@ public class CustomerControllerTest
         Customer blank = new Customer();
         Mockito.when(mockCustomerService.addNewCustomer(null, null, null, null, null)).thenReturn(mapper.writeValueAsString(blank));
         mockMvc.perform(post("/customers/")
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                    .andExpect(content().json(mapper.writeValueAsString(blank), true));
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(content().json(mapper.writeValueAsString(blank), true));
     }
 }

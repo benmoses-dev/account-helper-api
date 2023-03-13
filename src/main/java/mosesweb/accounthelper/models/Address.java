@@ -32,10 +32,12 @@ public class Address
 
     @Column(name = "road_name")
     @NotNull(message = "cannot be null")
+    @Pattern(regexp = "[a-zA-Z\\s]*", message = "road name must only contain letters or whitespace")
     private String roadName;
 
     @Column(name = "postcode")
     @NotNull(message = "cannot be null")
+    @Pattern(regexp = "[a-zA-Z]{2}[0-9]{2,3}[a-zA-Z]{2}", message = "postcode must only contain letters and numbers")
     private String postcode;
 
     public Address()
@@ -43,26 +45,11 @@ public class Address
         this(0, "", "");
     }
 
-    public Address(Integer houseNumber)
-    {
-        this(houseNumber, "", "");
-    }
-
-    public Address(String roadName)
-    {
-        this(0, roadName, "");
-    }
-
-    public Address(Integer houseNumber, String roadName)
-    {
-        this(houseNumber, roadName, "");
-    }
-
     public Address(Integer houseNumber, String roadName, String postcode)
     {
         this.houseNumber = houseNumber;
-        this.roadName = roadName;
-        this.postcode = postcode;
+        this.roadName = roadName.strip().replaceAll("[\\s]{2,}", " ");
+        this.postcode = postcode.strip().replaceAll("\\s", "");
     }
 
     /**
@@ -80,7 +67,7 @@ public class Address
      */
     public void setRoadName(String roadName)
     {
-        this.roadName = roadName;
+        this.roadName = roadName.strip().replaceAll("[\\s]{2,}", " ");
     }
 
     /**
@@ -89,7 +76,7 @@ public class Address
      */
     public void setPostcode(String postcode)
     {
-        this.postcode = postcode;
+        this.postcode = postcode.strip().replaceAll("\\s", "");
     }
 
     /**

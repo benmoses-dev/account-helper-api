@@ -3,6 +3,7 @@ package mosesweb.accounthelper.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
 import mosesweb.accounthelper.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -52,10 +53,12 @@ public class CustomerController
      *
      * @param id the unique customer id
      * @return the Customer with the given id if found, otherwise 404 error
+     * @throws mosesweb.accounthelper.exceptions.CustomerNotFoundException
      * @throws com.fasterxml.jackson.core.JsonProcessingException
      */
     @GetMapping(value = "/customers/{id}/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String getCustomer(@PathVariable("id") Integer id) throws JsonProcessingException
+    public String getCustomer(@PathVariable("id") Integer id) throws
+            CustomerNotFoundException, JsonProcessingException
     {
         return customerService.getCustomer(id);
     }
@@ -65,9 +68,11 @@ public class CustomerController
      * @param id
      * @return
      * @throws JsonProcessingException
+     * @throws mosesweb.accounthelper.exceptions.CustomerNotFoundException
      */
     @GetMapping(value = "/customers/{id}/ledger/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String getCustomerLedger(@PathVariable("id") Integer id) throws JsonProcessingException
+    public String getCustomerLedger(@PathVariable("id") Integer id) throws
+            JsonProcessingException, CustomerNotFoundException
     {
         return customerService.getCustomerLedger(id);
     }
@@ -77,9 +82,11 @@ public class CustomerController
      * @param id
      * @return
      * @throws JsonProcessingException
+     * @throws mosesweb.accounthelper.exceptions.CustomerNotFoundException
      */
     @GetMapping(value = "/customers/{id}/address/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String getCustomerAddress(@PathVariable("id") Integer id) throws JsonProcessingException
+    public String getCustomerAddress(@PathVariable("id") Integer id) throws
+            JsonProcessingException, CustomerNotFoundException
     {
         return customerService.getCustomerAddress(id);
     }
@@ -96,7 +103,8 @@ public class CustomerController
      */
     @PostMapping(value = "/customers/", produces = MediaType.APPLICATION_JSON_VALUE)
     public String addNewCustomer(
-            @RequestBody(required = false) ObjectNode customer) throws JsonProcessingException
+            @RequestBody(required = false) ObjectNode customer) throws
+            JsonProcessingException
     {
         JsonNode nameNode = null;
         JsonNode emailNode = null;
@@ -144,16 +152,18 @@ public class CustomerController
     /**
      *
      * Edit an existing Customer.Throws a RuntimeException if the Customer does
-     * not exist in the system. The Customer provided must have the correct ID.
+     * not exist in the system.The Customer provided must have the correct ID.
      *
      * @param id the ID of the Customer to edit
      * @param customer the Customer object with the new details
      * @return String representing the new customer details
      * @throws com.fasterxml.jackson.core.JsonProcessingException
+     * @throws mosesweb.accounthelper.exceptions.CustomerNotFoundException
      */
     @PutMapping(value = "/customers/{id}/", produces = MediaType.APPLICATION_JSON_VALUE)
     public String editCustomer(@PathVariable("id") Integer id,
-                               @RequestBody ObjectNode customer) throws JsonProcessingException
+                               @RequestBody ObjectNode customer) throws
+            JsonProcessingException, CustomerNotFoundException
     {
         // Extract request json
         JsonNode nameNode = customer.get("name");
@@ -190,15 +200,17 @@ public class CustomerController
 
     /**
      *
-     * Delete a Customer from the system with the provided ID. Throws a
-     * RuntimeException if the Customer does not exist.
+     * Delete a Customer from the system with the provided ID.Throws an
+     * Exception if the Customer does not exist.
      *
      * @param id the ID of the Customer to delete
      * @return a String representing whether the customer was successfully
      * deleted
+     * @throws mosesweb.accounthelper.exceptions.CustomerNotFoundException
      */
     @DeleteMapping("/customers/{id}/")
-    public String deleteCustomer(@PathVariable("id") Integer id)
+    public String deleteCustomer(@PathVariable("id") Integer id) throws
+            CustomerNotFoundException
     {
         return customerService.deleteCustomer(id);
     }
