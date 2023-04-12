@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Ben Moses
  */
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:5173")
 public class SaleController
 {
 
