@@ -2,11 +2,6 @@ package mosesweb.accounthelper.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import mosesweb.accounthelper.models.Customer;
 import mosesweb.accounthelper.services.CustomerService;
 import mosesweb.accounthelper.services.SaleService;
@@ -18,6 +13,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,9 +39,8 @@ public class CustomerControllerTest
     @Autowired
     private MockMvc mockMvc;
 
-    private static ObjectMapper mapper = new ObjectMapper();
-    private static Customer bob = new Customer("bob", "bob@example.com", 1, "bobsroad", "bo12 3bb");
-    private static Customer alice = new Customer("alice", "alice@example.com", 2, "aliceroad", "al1 3ce");
+    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final Customer alice = new Customer("alice", "alice@example.com", 2, "aliceroad", "al1 3ce");
 
     @BeforeAll
     public static void configMapper()
@@ -49,18 +48,6 @@ public class CustomerControllerTest
         mapper.findAndRegisterModules();
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-    }
-
-    @Test
-    public void testGetAllCustomers() throws Exception
-    {
-        Collection<Customer> customers = new ArrayList<>();
-        customers.add(bob);
-        customers.add(alice);
-        Mockito.when(mockCustomerService.getAllCustomers()).thenReturn(mapper.writeValueAsString(customers));
-        mockMvc.perform(get("/customers/"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Test

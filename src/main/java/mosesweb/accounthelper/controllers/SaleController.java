@@ -3,9 +3,6 @@ package mosesweb.accounthelper.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import mosesweb.accounthelper.exceptions.CustomerNeededException;
 import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
 import mosesweb.accounthelper.exceptions.InvoiceNumberNeededException;
@@ -16,11 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -39,38 +39,6 @@ public class SaleController
     @Autowired
     private SaleService saleService;
 
-    // ***** PRESENTER *****
-    /**
-     *
-     * Returns a collection of all Sale objects in the system.
-     *
-     * @return all Sale objects
-     * @throws com.fasterxml.jackson.core.JsonProcessingException
-     */
-    @GetMapping(value = "/sales/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String getAllSales() throws JsonProcessingException
-    {
-        return saleService.getAllSales();
-    }
-
-    /**
-     *
-     * Returns the Sale object with the provided ID.Throws a RuntimeException if
-     * the sale does not exist.
-     *
-     * @param id the unique id of the Sale
-     * @return the Sale with the given id
-     * @throws com.fasterxml.jackson.core.JsonProcessingException
-     * @throws mosesweb.accounthelper.exceptions.SaleNotFoundException
-     */
-    @GetMapping(value = "/sales/{id}/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String getSale(@PathVariable("id") Integer id) throws
-            JsonProcessingException, SaleNotFoundException
-    {
-        return saleService.getSale(id);
-    }
-
-    // ***** CONTROLLER *****
     /**
      *
      * Adds a new sale to the system.If the sale is a cash sale, a BankDebit

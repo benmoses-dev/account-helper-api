@@ -1,11 +1,6 @@
-package mosesweb.accounthelper.controllers;
+package mosesweb.accounthelper.exceptions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import mosesweb.accounthelper.exceptions.CustomerNeededException;
-import mosesweb.accounthelper.exceptions.CustomerNotFoundException;
-import mosesweb.accounthelper.exceptions.InvoiceNumberNeededException;
-import mosesweb.accounthelper.exceptions.InvoiceNumberNotUniqueException;
-import mosesweb.accounthelper.exceptions.SaleNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
